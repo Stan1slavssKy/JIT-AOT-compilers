@@ -1,7 +1,8 @@
-#ifndef BASIC_BLOCK_H
-#define BASIC_BLOCK_H
+#ifndef IR_BASIC_BLOCK_H
+#define IR_BASIC_BLOCK_H
 
 #include <vector>
+#include <string>
 
 #include "utils/macros.h"
 
@@ -53,4 +54,4 @@ private:
 
 }  // namespace compiler
 
-#endif  // BASIC_BLOCK_H
+#endif  // IR_BASIC_BLOCK_H
