@@ -3,6 +3,8 @@
 
 #include <cstddef>
 
+#include "ir/value.h"
+
 namespace compiler {
 
 enum Opcode : size_t {
@@ -11,12 +13,32 @@ enum Opcode : size_t {
 #undef _
 };
 
-struct InstructionId {
-    InstructionId(size_t id) : insnId(id) {}
+class Instruction;
 
+struct Inputs {
+    std::vector<Value> intputValues_;
+};
+
+struct Users {
+    std::vector<Instruction *> usersInstructions_;
+};
+
+class InstructionId {
+public:
+    InstructionId()
+    {
+        static size_t counter = 0;
+        insnId_ = counter++;
+    }
+
+    size_t GetId() const
+    {
+        return insnId_;
+    }
+
+private:
     static constexpr size_t INVALID_INSN_ID = -1;
-    size_t insnId {INVALID_INSN_ID};
-    bool isPhi {false};
+    size_t insnId_ {INVALID_INSN_ID};
 };
 
 class Instruction {
@@ -24,15 +46,36 @@ public:
     NO_COPY_SEMANTIC(Instruction);
     NO_MOVE_SEMANTIC(Instruction);
 
-    Instruction(Opcode opcode) : opcode_(opcode)
+    Instruction(Opcode opcode, ValueType resultType) : opcode_(opcode), resultType_(resultType)
     {}
+
+    void SetParentBB(BasicBlock *bb)
+    {
+        parentBB_ = bb;
+    }
+
+    void AddInput(Value input)
+    {
+        inputs_.intputValues_.push_back(input);
+    }
+
+    void AddUser(Instruction *user)
+    {
+        users_.usersInstructions_.push_back(user);
+    }
 
 private:
     Instruction *prev_ {nullptr};
     Instruction *next_ {nullptr};
 
-    Opcode opcode_ {Opcode::UNDEFINED};
+    BasicBlock *parentBB_ {nullptr};
+
     InstructionId insnId_;
+    Opcode opcode_ {Opcode::UNDEFINED};
+    ValueType resultType_;
+
+    Inputs inputs_;
+    Users users_;
 };
 
 }  // namespace compiler

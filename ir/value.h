@@ -27,13 +27,20 @@ enum class ValueType {
 class Value {
 public:
     using ValueVariant = std::variant<std::monostate, int8_t, uint8_t, int16_t, uint16_t, int32_t, uint32_t, int64_t,
-                                      uint64_t, float, double>;
+                                      uint64_t, float, double, uintptr_t>;
 
 public:
     DEFAULT_COPY_SEMANTIC(Value);
     DEFAULT_MOVE_SEMANTIC(Value);
 
-    Value(ValueVariant val) : value_(val) {}
+    template<typename T>
+    static Value Create(T val, ValueType type = ValueType::UNDEFINED)
+    {
+        return ValueVariant(val, type);
+    }
+
+private:
+    Value(ValueVariant val, ValueType type) : value_(val), type_(type) {}
 
 private:
     ValueVariant value_;
