@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 
-#include "ir/ir_builder.h"
+#include "ir/ir_builder-inl.h"
 
 namespace compiler::tests {
 
@@ -21,37 +21,52 @@ namespace compiler::tests {
         0.u32 Parameter 0 // n
         1.u64 Constant 1
         2.u32 Constant 2
-        3. jmp BB_2
+        3. jmp BB_1
     BB_1:
-        4p.u64 Phi v1:Entry, v_7:BB_3 // res
-        5p.u32 Phi v2:Entry, v_8:BB_3 // idx
-        6. bgt BB_4, BB_3
+        4p.u64 Phi v1:Entry, v_7:BB_2 // res
+        5p.u32 Phi v2:Entry, v_8:BB_2 // idx
+        6. bgt v5, v0, BB_3, BB_2
     BB_2:
         7.u64 mul v4, v5
         8.u32 add v5, v1
-        9. jmp BB_2
+        9. jmp BB_1
     BB_3:
         10.u64 ret v4
 */
-TEST(IR_BUILDER, RecursiveFactorial)
+TEST(IR_BUILDER, LoopFactorial)
 {
-    auto *builder = IrBuilder::GetInstance();
+    Graph graph;
+    IrBuilder builder(&graph);
 
-    auto *fact = builder->CreateFunction("Fact", ValueType::U64, std::vector{ValueType::U64});
+    auto *entryBB = builder.CreateBB();
+    auto *bb1 = builder.CreateBB();
+    auto *bb2 = builder.CreateBB();
+    auto *bb3 = builder.CreateBB();
 
-    auto *entryBB = builder->CreateBB(fact);
-    auto *bb1 = builder->CreateBB(fact);
-    auto *bb2 = builder->CreateBB(fact);
-    auto *bb3 = builder->CreateBB(fact);
+    builder.SetBasicBlockScope(entryBB);
+    auto *v0 = builder.CreateParameterInsn(0);
+    auto *v1 = builder.CreateInt64ConstantInsn(1);
+    auto *v2 = builder.CreateInt64ConstantInsn(2);
+    builder.CreateJmpInsn(bb1);
 
-    auto v0 = builder->CreateValue(ValueType::U32, 0);
-    auto v1 = builder->CreateValue(ValueType::U64, 1);
-    auto v2 = builder->CreateValue(ValueType::U64, 2);
-    builder->CreateJmp(entryBB, bb1);
+    builder.SetBasicBlockScope(bb1);
+    auto *v4 = builder.CreatePhiInsn(DataType::U64);
+    auto *v5 = builder.CreatePhiInsn(DataType::U32);
+    builder.CreateBgtInsn(v5, v0, bb2, bb1);
 
-    
+    builder.SetBasicBlockScope(bb2);
+    auto *v7 = builder.CreateMulInsn(DataType::U64, v4, v5);
+    auto *v8 = builder.CreateAddInsn(DataType::U32, v5, v1);
+    builder.CreateJmpInsn(bb1);
 
-    IrBuilder::DeleteInstance();
+    v4->AddInput(v1);
+    v4->AddInput(v7);
+
+    v5->AddInput(v2);
+    v5->AddInput(v8);
+
+    builder.SetBasicBlockScope(bb3);
+    builder.CreateRetInsn(DataType::U64, v4);
 }
 
 }  // namespace compiler::tests

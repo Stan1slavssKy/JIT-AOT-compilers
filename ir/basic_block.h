@@ -1,55 +1,81 @@
 #ifndef IR_BASIC_BLOCK_H
 #define IR_BASIC_BLOCK_H
 
+#include "utils/macros.h"
+#include "ir/instruction.h"
+
 #include <vector>
 #include <string>
-
-#include "utils/macros.h"
+#include <memory>
 
 namespace compiler {
 
-class Instruction;
-class Function;
+class Graph;
 
 using BasicBlockId = size_t;
 
-class BasicBlock {
+class BasicBlock final {
 public:
     NO_COPY_SEMANTIC(BasicBlock);
     NO_MOVE_SEMANTIC(BasicBlock);
 
-    BasicBlock()
-    {
-        static BasicBlockId id = 0;
-        bbId_ = id++;
-    }
-
-    BasicBlock(Function *parentFunction) : BasicBlock()
-    {
-        parentFunction_ = parentFunction;
-    }
-
+    BasicBlock() = default;
     ~BasicBlock() = default;
 
-    void PushBack(Instruction *insn)
+    void PushInstruction(Instruction *insn)
     {
-        insns_.push_back(insn);
+        if (lastInsn_ == nullptr) {
+            firstInsn_ = insn;
+            lastInsn_ = firstInsn_;
+        } else {
+            lastInsn_->SetNext(insn);
+            insn->SetPrev(lastInsn_);
+            lastInsn_ = insn;
+        }
     }
 
-    size_t GetId() const
+    void SetId(BasicBlockId id)
+    {
+        bbId_ = id;
+    }
+
+    BasicBlockId GetId() const
     {
         return bbId_;
     }
 
-private:
-    BasicBlockId bbId_ {-1};
-    Function *parentFunction_ {nullptr};
+    void SetGraph(Graph *graph)
+    {
+        graph_ = graph;
+    }
 
-    // TODO: replace it with intrusive list of instructions
-    std::vector<Instruction *> insns_;
+    void AddSuccessor(BasicBlock *block)
+    {
+        assert(successors_.size() != 2);
+        successors_.push_back(block);
+    }
+
+    void AddPredecessors(BasicBlock *block)
+    {
+        predecessors_.push_back(block);
+    }
+
+    Instruction *GetLastInsn() const
+    {
+        return lastInsn_;
+    }
+
+private:
+    BasicBlockId bbId_ {0};
 
     std::vector<BasicBlock *> predecessors_;
     std::vector<BasicBlock *> successors_;
+
+    Instruction *firstPhi_ {nullptr};
+    Instruction *firstInsn_ {nullptr};
+    Instruction *lastInsn_ {nullptr};
+
+    Graph *graph_ {nullptr};
 };
 
 }  // namespace compiler

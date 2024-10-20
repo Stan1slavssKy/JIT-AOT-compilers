@@ -3,8 +3,9 @@
 
 #include "utils/macros.h"
 #include "ir/instruction.h"
-#include "ir/value.h"
-#include "ir/function.h"
+#include "ir/basic_block.h"
+#include "ir/instructions.h"
+#include "ir/graph.h"
 
 #include <string>
 #include <vector>
@@ -12,85 +13,67 @@
 
 namespace compiler {
 
-class BasicBlock;
-
 class IrBuilder final {
 public:
-    static IrBuilder *GetInstance()
-    {
-        if (instance_ == nullptr) {
-            instance_ = new IrBuilder();
-        }
-        return instance_;
-    }
-
-    static void DeleteInstance()
-    {
-        delete instance_;
-    }
-
-    template <typename... T>
-    Function *CreateFunction(T &&...args)
-    {
-        auto func = std::make_unique<Function>(std::forward<T>(args)...);
-        functions_.push_back(std::move(func));
-        return functions_.back().get();
-    }
-
-    BasicBlock *CreateBB(Function *func)
-    {
-        auto bb = std::make_unique<BasicBlock>(func);
-        basicBlocks_.push_back(std::move(bb));
-        return basicBlocks_.back().get();
-    }
-
-    template<typename T>
-    static Value CreateValue(ValueType type, T value)
-    {
-        switch (type) {
-            case ValueType::I8:
-                return Value::Create<int32_t>(static_cast<int32_t>(value));
-            case ValueType::U8:
-                return Value::Create<uint32_t>(static_cast<uint32_t>(value));
-            case ValueType::I16:
-                return Value::Create<int16_t>(static_cast<int16_t>(value));
-            case ValueType::U16:
-                return Value::Create<uint16_t>(static_cast<uint16_t>(value));
-            case ValueType::I32:
-                return Value::Create<int32_t>(static_cast<int32_t>(value));
-            case ValueType::U32:
-                return Value::Create<uint32_t>(static_cast<uint32_t>(value));
-            case ValueType::I64:
-                return Value::Create<int64_t>(static_cast<int64_t>(value));
-            case ValueType::U64:
-                return Value::Create<uint64_t>(static_cast<uint64_t>(value));
-            case ValueType::F32:
-                return Value::Create<float>(static_cast<float>(value));
-            case ValueType::F64:
-                return Value::Create<double>(static_cast<double>(value));
-            case ValueType::REF:
-                return Value::Create<uintptr_t>(static_cast<uintptr_t>(value));
-            default:
-                UNREACHABLE();
-        }
-    }
-
-    void CreateJmp(BasicBlock *currentBB, BasicBlock *bbToJmp)
-    {
-        
-    }
-
-private:
     NO_COPY_SEMANTIC(IrBuilder);
     NO_MOVE_SEMANTIC(IrBuilder);
 
-    IrBuilder() = default;
+    IrBuilder(Graph *graph) : graph_(graph) {}
+    ~IrBuilder() = default;
+
+    BasicBlock *CreateBB()
+    {
+        auto bb = std::make_unique<BasicBlock>();
+        auto bbPtr = bb.get();
+        graph_->AddBlock(std::move(bb));
+        return bbPtr;
+    }
+
+    void SetBasicBlockScope(BasicBlock *currentBB)
+    {
+        currentBB_ = currentBB;
+    }
+
+    template <typename InsnT, typename... ArgsT>
+    Instruction *CreateInstruction(ArgsT &&...args)
+    {
+        auto insn = std::make_unique<InsnT>(std::forward<ArgsT>(args)...);
+        auto insnPtr = insn.get();
+        graph_->AddInstruction(std::move(insn));
+
+        insnPtr->SetParentBB(currentBB_);
+        currentBB_->PushInstruction(insnPtr);
+        return insnPtr;
+    }
+
+    Instruction *CreatePhiInsn(DataType resultType);
+
+    Instruction *CreateParameterInsn(uint32_t parameter);
+
+    template <typename T>
+    Instruction *CreateConstantInsn(T constant, DataType resultType);
+    Instruction *CreateInt32ConstantInsn(uint32_t constant);
+    Instruction *CreateInt64ConstantInsn(uint64_t constant);
+    Instruction *CreateFloat32ConstantInsn(float constant);
+    Instruction *CreateFloat64ConstantInsn(double constant);
+
+    Instruction *CreateAddInsn(DataType resultType, Instruction *input1, Instruction *input2);
+    Instruction *CreateSubInsn(DataType resultType, Instruction *input1, Instruction *input2);
+    Instruction *CreateMulInsn(DataType resultType, Instruction *input1, Instruction *input2);
+    Instruction *CreateDivInsn(DataType resultType, Instruction *input1, Instruction *input2);
+    Instruction *CreateRemInsn(DataType resultType, Instruction *input1, Instruction *input2);
+
+    Instruction *CreateJmpInsn(BasicBlock *bbToJmp);
+    Instruction *CreateBneInsn(Instruction *input1, Instruction *input2, BasicBlock *bb1, BasicBlock *bb2);
+    Instruction *CreateBeqInsn(Instruction *input1, Instruction *input2, BasicBlock *bb1, BasicBlock *bb2);
+    Instruction *CreateBgtInsn(Instruction *input1, Instruction *input2, BasicBlock *bb1, BasicBlock *bb2);
+
+    Instruction *CreateRetInsn(DataType retType, Instruction *input);
 
 private:
-    static IrBuilder *instance_;
+    Graph *graph_ {nullptr};
 
-    std::vector<std::unique_ptr<Function>> functions_;
-    std::vector<std::unique_ptr<BasicBlock>> basicBlocks_;
+    BasicBlock *currentBB_ {nullptr};
 };
 
 }  // namespace compiler

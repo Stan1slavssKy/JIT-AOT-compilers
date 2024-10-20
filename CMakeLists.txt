@@ -17,6 +17,7 @@ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${COMPILER_BINARY_ROOT}/lib)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${COMPILER_BINARY_ROOT}/bin)
 
 set(SOURCES
+    ir/graph.cpp
     ir/ir_builder.cpp
 )
 
