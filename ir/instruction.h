@@ -2,8 +2,7 @@
 #define IR_INSTRUCTION_H
 
 #include <cstddef>
-
-#include "ir/value.h"
+#include <vector>
 
 namespace compiler {
 
@@ -13,55 +12,98 @@ enum Opcode : size_t {
 #undef _
 };
 
+enum class DataType {
+    UNDEFINED,
+    VOID,
+    I8,
+    U8,
+    I16,
+    U16,
+    I32,
+    U32,
+    I64,
+    U64,
+    F32,
+    F64,
+    REF,
+};
+
 class Instruction;
+class BasicBlock;
 
-struct Inputs {
-    std::vector<Value> intputValues_;
+struct Input {
+    Instruction *input {nullptr};
 };
 
-struct Users {
-    std::vector<Instruction *> usersInstructions_;
+struct User {
+    Instruction *user {nullptr};
 };
 
-class InstructionId {
-public:
-    InstructionId()
-    {
-        static size_t counter = 0;
-        insnId_ = counter++;
-    }
-
-    size_t GetId() const
-    {
-        return insnId_;
-    }
-
-private:
-    static constexpr size_t INVALID_INSN_ID = -1;
-    size_t insnId_ {INVALID_INSN_ID};
-};
+using InstructionId = size_t;
 
 class Instruction {
 public:
     NO_COPY_SEMANTIC(Instruction);
     NO_MOVE_SEMANTIC(Instruction);
 
-    Instruction(Opcode opcode, ValueType resultType) : opcode_(opcode), resultType_(resultType)
-    {}
+    Instruction(Opcode opcode, DataType resultType = DataType::UNDEFINED) : opcode_(opcode), resultType_(resultType) {}
+
+    virtual ~Instruction() = default;
 
     void SetParentBB(BasicBlock *bb)
     {
         parentBB_ = bb;
     }
 
-    void AddInput(Value input)
+    void SetNext(Instruction *nextInsn)
     {
-        inputs_.intputValues_.push_back(input);
+        next_ = nextInsn;
+    }
+
+    void SetPrev(Instruction *prevInsn)
+    {
+        prev_ = prevInsn;
+    }
+
+    void AddInput(Instruction *input)
+    {
+        inputs_.push_back(Input {input});
     }
 
     void AddUser(Instruction *user)
     {
-        users_.usersInstructions_.push_back(user);
+        (void)user;
+        // users_.usersInstructions_.push_back(user);
+    }
+
+    void SetInputs(std::vector<Input> inputs)
+    {
+        inputs_ = std::move(inputs);
+    }
+
+    const std::vector<Input> &GetInputs() const
+    {
+        return inputs_;
+    }
+
+    bool IsPhi() const
+    {
+        return opcode_ == Opcode::PHI;
+    }
+
+    void SetResultType(DataType type)
+    {
+        resultType_ = type;
+    }
+
+    void SetId(InstructionId id)
+    {
+        insnId_ = id;
+    }
+
+    InstructionId GetId() const
+    {
+        return insnId_;
     }
 
 private:
@@ -70,12 +112,12 @@ private:
 
     BasicBlock *parentBB_ {nullptr};
 
-    InstructionId insnId_;
+    InstructionId insnId_ {0};
     Opcode opcode_ {Opcode::UNDEFINED};
-    ValueType resultType_;
+    DataType resultType_;
 
-    Inputs inputs_;
-    Users users_;
+    std::vector<Input> inputs_;
+    std::vector<User> users_;
 };
 
 }  // namespace compiler

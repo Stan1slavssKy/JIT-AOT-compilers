@@ -1,7 +1,5 @@
-#include "ir/ir_builder.h"
+#include "ir/ir_builder-inl.h"
 
 namespace compiler {
-
-IrBuilder *IrBuilder::instance_ = nullptr;
 
 }  // namespace compiler
