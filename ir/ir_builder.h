@@ -35,16 +35,7 @@ public:
     }
 
     template <typename InsnT, typename... ArgsT>
-    Instruction *CreateInstruction(ArgsT &&...args)
-    {
-        auto insn = std::make_unique<InsnT>(std::forward<ArgsT>(args)...);
-        auto insnPtr = insn.get();
-        graph_->AddInstruction(std::move(insn));
-
-        insnPtr->SetParentBB(currentBB_);
-        currentBB_->PushInstruction(insnPtr);
-        return insnPtr;
-    }
+    Instruction *CreateInstruction(ArgsT &&...args);
 
     Instruction *CreatePhiInsn(DataType resultType);
 

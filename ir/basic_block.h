@@ -55,7 +55,7 @@ public:
         successors_.push_back(block);
     }
 
-    void AddPredecessors(BasicBlock *block)
+    void AddPredecessor(BasicBlock *block)
     {
         predecessors_.push_back(block);
     }

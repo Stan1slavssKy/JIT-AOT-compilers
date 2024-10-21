@@ -5,6 +5,39 @@
 
 namespace compiler {
 
+template <typename InsnT, typename... ArgsT>
+Instruction *IrBuilder::CreateInstruction(ArgsT &&...args)
+{
+    auto insn = std::make_unique<InsnT>(std::forward<ArgsT>(args)...);
+    Instruction *insnPtr = insn.get();
+    graph_->AddInstruction(std::move(insn));
+
+    insnPtr->SetParentBB(currentBB_);
+    currentBB_->PushInstruction(insnPtr);
+
+    if (insnPtr->IsBranch()) {
+        auto *branchInsn = static_cast<BranchInsn *>(insnPtr);
+        auto *ifTrueBB = branchInsn->GetTrueBranchBB();
+        auto *ifFalseBB = branchInsn->GetFalseBranchBB();
+
+        currentBB_->AddSuccessor(ifTrueBB);
+        currentBB_->AddSuccessor(ifFalseBB);
+
+        ifTrueBB->AddPredecessor(currentBB_);
+        ifFalseBB->AddPredecessor(currentBB_);
+    }
+
+    if (insnPtr->IsJmp()) {
+        auto *jmpInsn = static_cast<JmpInsn *>(insnPtr);
+        auto *bbToJmp = jmpInsn->GetBBToJmp();
+
+        currentBB_->AddSuccessor(bbToJmp);
+        bbToJmp->AddPredecessor(currentBB_);
+    }
+
+    return insnPtr;
+}
+
 Instruction *IrBuilder::CreatePhiInsn(DataType resultType)
 {
     return CreateInstruction<PhiInsn>(resultType);

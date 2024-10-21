@@ -55,6 +55,11 @@ public:
         parentBB_ = bb;
     }
 
+    BasicBlock *GetParentBB() const
+    {
+        return parentBB_;
+    }
+
     void SetNext(Instruction *nextInsn)
     {
         next_ = nextInsn;
@@ -72,8 +77,7 @@ public:
 
     void AddUser(Instruction *user)
     {
-        (void)user;
-        // users_.usersInstructions_.push_back(user);
+        users_.push_back(User {user});
     }
 
     void SetInputs(std::vector<Input> inputs)
@@ -89,6 +93,16 @@ public:
     bool IsPhi() const
     {
         return opcode_ == Opcode::PHI;
+    }
+
+    bool IsJmp() const
+    {
+        return opcode_ == Opcode::JMP;
+    }
+
+    bool IsBranch() const
+    {
+        return (opcode_ == Opcode::BEQ) || (opcode_ == Opcode::BNE) || (opcode_ == Opcode::BGT);
     }
 
     void SetResultType(DataType type)

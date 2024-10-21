@@ -66,7 +66,8 @@ public:
     {
         AddInput(input1);
         AddInput(input2);
-        // AddUser()
+        input1->AddUser(this);
+        input2->AddUser(this);
     }
 };
 
@@ -138,6 +139,11 @@ class JmpInsn final : public Instruction {
 public:
     JmpInsn(BasicBlock *bbToJmp) : Instruction(Opcode::JMP, DataType::VOID), bbToJmp_(bbToJmp) {}
 
+    BasicBlock *GetBBToJmp() const
+    {
+        return bbToJmp_;
+    }
+
 private:
     BasicBlock *bbToJmp_ {nullptr};
 };
@@ -149,6 +155,8 @@ public:
     {
         AddInput(input1);
         AddInput(input2);
+        input1->AddUser(this);
+        input2->AddUser(this);
     }
 
     BasicBlock *GetTrueBranchBB() const
@@ -192,7 +200,11 @@ public:
 
 class RetInsn final : public Instruction {
 public:
-    RetInsn(DataType retType, Instruction *input) : Instruction(Opcode::RET, retType), retValue_(input) {}
+    RetInsn(DataType retType, Instruction *input) : Instruction(Opcode::RET, retType), retValue_(input)
+    {
+        AddInput(input);
+        input->AddUser(this);
+    }
 
 private:
     Instruction *retValue_ {nullptr};
