@@ -19,6 +19,8 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${COMPILER_BINARY_ROOT}/bin)
 set(SOURCES
     ir/graph.cpp
     ir/ir_builder.cpp
+    ir/basic_block.cpp
+    ir/instructions.cpp
 )
 
 add_library(compiler_static STATIC ${SOURCES})

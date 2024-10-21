@@ -22,6 +22,8 @@ public:
     void AddBlock(std::unique_ptr<BasicBlock> block);
     void AddInstruction(std::unique_ptr<Instruction> insn);
 
+    void Dump(std::stringstream &ss) const;
+
 private:
     // Graph owns all basic blocks and instruction of the current function.
     std::vector<std::unique_ptr<BasicBlock>> basicBlocks_;

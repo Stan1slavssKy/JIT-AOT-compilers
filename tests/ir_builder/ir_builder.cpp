@@ -67,6 +67,10 @@ TEST(IR_BUILDER, LoopFactorial)
 
     builder.SetBasicBlockScope(bb3);
     builder.CreateRetInsn(DataType::U64, v4);
+
+    std::stringstream ss;
+    graph.Dump(ss);
+    std::cout << ss.str() << std::endl;
 }
 
 }  // namespace compiler::tests

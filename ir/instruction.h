@@ -1,32 +1,14 @@
 #ifndef IR_INSTRUCTION_H
 #define IR_INSTRUCTION_H
 
-#include <cstddef>
+#include "ir/data_types.h"
+#include "ir/opcodes.h"
+#include "utils/macros.h"
+
 #include <vector>
+#include <sstream>
 
 namespace compiler {
-
-enum Opcode : size_t {
-#define _(instr) instr,
-#include "ir/instruction_type.def"
-#undef _
-};
-
-enum class DataType {
-    UNDEFINED,
-    VOID,
-    I8,
-    U8,
-    I16,
-    U16,
-    I32,
-    U32,
-    I64,
-    U64,
-    F32,
-    F64,
-    REF,
-};
 
 class Instruction;
 class BasicBlock;
@@ -65,9 +47,19 @@ public:
         next_ = nextInsn;
     }
 
+    Instruction *GetNext() const
+    {
+        return next_;
+    }
+
     void SetPrev(Instruction *prevInsn)
     {
         prev_ = prevInsn;
+    }
+
+    Instruction *GetPrev() const
+    {
+        return prev_;
     }
 
     void AddInput(Instruction *input)
@@ -119,6 +111,8 @@ public:
     {
         return insnId_;
     }
+
+    void Dump(std::stringstream &ss) const;
 
 private:
     Instruction *prev_ {nullptr};

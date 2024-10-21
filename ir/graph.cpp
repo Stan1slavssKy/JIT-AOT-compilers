@@ -16,4 +16,11 @@ void Graph::AddInstruction(std::unique_ptr<Instruction> insn)
     instructions_.push_back(std::move(insn));
 }
 
+void Graph::Dump(std::stringstream &ss) const
+{
+    for (auto &bb : basicBlocks_) {
+        bb->Dump(ss);
+    }
+}
+
 }  // namespace compiler

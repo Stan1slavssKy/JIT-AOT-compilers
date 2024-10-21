@@ -7,6 +7,7 @@
 #include <vector>
 #include <string>
 #include <memory>
+#include <sstream>
 
 namespace compiler {
 
@@ -64,6 +65,8 @@ public:
     {
         return lastInsn_;
     }
+
+    void Dump(std::stringstream &ss) const;
 
 private:
     BasicBlockId bbId_ {0};
