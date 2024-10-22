@@ -21,6 +21,7 @@ set(SOURCES
     ir/ir_builder.cpp
     ir/basic_block.cpp
     ir/dump_instructions.cpp
+    analisys/dfs.cpp
 )
 
 add_library(compiler_static STATIC ${SOURCES})

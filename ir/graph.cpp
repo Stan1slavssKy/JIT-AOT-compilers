@@ -23,4 +23,9 @@ void Graph::Dump(std::stringstream &ss) const
     }
 }
 
+BasicBlock *Graph::GetStartBlock() const
+{
+    return basicBlocks_.front().get();
+}
+
 }  // namespace compiler

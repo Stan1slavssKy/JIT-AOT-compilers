@@ -22,6 +22,8 @@ public:
     void AddBlock(std::unique_ptr<BasicBlock> block);
     void AddInstruction(std::unique_ptr<Instruction> insn);
 
+    BasicBlock *GetStartBlock() const;
+
     void Dump(std::stringstream &ss) const;
 
 private:

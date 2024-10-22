@@ -14,6 +14,7 @@ namespace compiler {
 class Graph;
 
 using BasicBlockId = size_t;
+using Marker = bool;
 
 class BasicBlock final {
 public:
@@ -61,9 +62,29 @@ public:
         predecessors_.push_back(block);
     }
 
+    const std::vector<BasicBlock *> &GetSuccessors() const
+    {
+        return successors_;
+    }
+
+    const std::vector<BasicBlock *> &GetPredecessors() const
+    {
+        return predecessors_;
+    }
+
     Instruction *GetLastInsn() const
     {
         return lastInsn_;
+    }
+
+    void SetMarker(Marker marker)
+    {
+        marker_ = marker;
+    }
+
+    bool IsMarked(Marker marker) const
+    {
+        return marker_ == marker;
     }
 
     void Dump(std::stringstream &ss) const;
@@ -79,6 +100,8 @@ private:
     Instruction *lastInsn_ {nullptr};
 
     Graph *graph_ {nullptr};
+
+    Marker marker_ {false};
 };
 
 }  // namespace compiler
