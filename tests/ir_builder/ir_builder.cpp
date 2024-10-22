@@ -52,7 +52,7 @@ TEST(IR_BUILDER, LoopFactorial)
     builder.SetBasicBlockScope(bb1);
     auto *v4 = builder.CreatePhiInsn(DataType::U64);
     auto *v5 = builder.CreatePhiInsn(DataType::U32);
-    builder.CreateBgtInsn(v5, v0, bb2, bb1);
+    builder.CreateBgtInsn(v5, v0, bb3, bb2);
 
     builder.SetBasicBlockScope(bb2);
     auto *v7 = builder.CreateMulInsn(DataType::U64, v4, v5);

@@ -112,7 +112,7 @@ public:
         return insnId_;
     }
 
-    void Dump(std::stringstream &ss) const;
+    virtual void Dump(std::stringstream &ss) const;
 
 private:
     Instruction *prev_ {nullptr};

@@ -1,6 +1,7 @@
 #ifndef IR_INSTRUCTIONS_H
 #define IR_INSTRUCTIONS_H
 
+#include "ir/data_types.h"
 #include "ir/instruction.h"
 #include "utils/bit_utils.h"
 
@@ -15,6 +16,8 @@ public:
         return argNum_;
     }
 
+    void Dump(std::stringstream &ss) const override;
+
 private:
     uint32_t argNum_ {0};
 };
@@ -27,16 +30,67 @@ public:
     {
         if constexpr (std::is_integral_v<T>) {
             value_ = value;
+            if constexpr (std::is_signed_v<T>) {
+                type_ = DataType::I64;
+            } else {
+                type_ = DataType::U64;
+            }
         } else if constexpr (std::is_same_v<T, float>) {
             value_ = utils::bit_cast<uint32_t, float>(value);
+            type_ = DataType::F32;
         } else if constexpr (std::is_same_v<T, double>) {
             value_ = utils::bit_cast<uint64_t, double>(value);
+            type_ = DataType::F64;
         } else {
             UNREACHABLE();
         }
     }
 
+    bool IsSignedInt() const
+    {
+        return type_ == DataType::I64;
+    }
+
+    bool IsUnsignedInt() const
+    {
+        return type_ == DataType::U64;
+    }
+
+    bool IsF32() const
+    {
+        return type_ == DataType::F32;
+    }
+
+    bool IsF64() const
+    {
+        return type_ == DataType::F64;
+    }
+
+    float GetAsF32() const
+    {
+        return utils::bit_cast<float, uint32_t>(static_cast<uint32_t>(value_));
+    }
+
+    double GetAsF64() const
+    {
+        return utils::bit_cast<double, uint64_t>(value_);
+    }
+
+    int64_t GetAsSignedInt() const
+    {
+        return static_cast<int64_t>(value_);
+    }
+
+    uint64_t GetAsUnsignedInt() const
+    {
+        return value_;
+    }
+
+    void Dump(std::stringstream &ss) const override;
+
 private:
+    DataType type_ {DataType::UNDEFINED};
+
     uint64_t value_ {0};
 };
 
@@ -57,6 +111,8 @@ public:
         (void)bb;
         return nullptr;
     }
+
+    void Dump(std::stringstream &ss) const override;
 };
 
 class ArithmeticInsn : public Instruction {
@@ -69,6 +125,8 @@ public:
         input1->AddUser(this);
         input2->AddUser(this);
     }
+
+    void Dump(std::stringstream &ss) const override;
 };
 
 class AddInsn final : public ArithmeticInsn {
@@ -144,6 +202,8 @@ public:
         return bbToJmp_;
     }
 
+    void Dump(std::stringstream &ss) const override;
+
 private:
     BasicBlock *bbToJmp_ {nullptr};
 };
@@ -168,6 +228,8 @@ public:
     {
         return ifFalseBB_;
     }
+
+    void Dump(std::stringstream &ss) const override;
 
 private:
     BasicBlock *ifTrueBB_ {nullptr};
@@ -205,6 +267,8 @@ public:
         AddInput(input);
         input->AddUser(this);
     }
+
+    void Dump(std::stringstream &ss) const override;
 
 private:
     Instruction *retValue_ {nullptr};

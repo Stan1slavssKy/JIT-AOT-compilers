@@ -20,7 +20,7 @@ set(SOURCES
     ir/graph.cpp
     ir/ir_builder.cpp
     ir/basic_block.cpp
-    ir/instructions.cpp
+    ir/dump_instructions.cpp
 )
 
 add_library(compiler_static STATIC ${SOURCES})
