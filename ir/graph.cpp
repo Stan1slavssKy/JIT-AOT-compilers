@@ -28,4 +28,9 @@ BasicBlock *Graph::GetStartBlock() const
     return basicBlocks_.front().get();
 }
 
+size_t Graph::GetAlivBlockCount() const
+{
+    return basicBlocks_.size();
+}
+
 }  // namespace compiler

@@ -5,7 +5,7 @@ add_library(unit_test_main OBJECT main.cpp)
 target_link_libraries(unit_tests PUBLIC
     unit_test_main
     ir_builder_test_obj
-    dfs_test_obj
+    rpo_test_obj
 )
 
 add_custom_target(run_unit_tests

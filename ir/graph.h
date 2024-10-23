@@ -24,6 +24,8 @@ public:
 
     BasicBlock *GetStartBlock() const;
 
+    size_t GetAlivBlockCount() const;
+
     void Dump(std::stringstream &ss) const;
 
 private:

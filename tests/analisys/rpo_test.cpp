@@ -1,12 +1,12 @@
 #include <gtest/gtest.h>
 
-#include "analisys/dfs.h"
+#include "analisys/rpo.h"
 #include "ir/graph.h"
 #include "ir/ir_builder.h"
 
 namespace compiler::tests {
 
-TEST(DFS, TEST_1)
+TEST(RPO, TEST_1)
 {
     Graph graph;
     IrBuilder builder(&graph);
@@ -28,16 +28,16 @@ TEST(DFS, TEST_1)
     g->AddSuccessor(d);
     e->AddSuccessor(d);
 
-    DFS dfs(&graph);
-    dfs.Run();
-    auto &dfsVec = dfs.GetDfsBlocks();
+    RPO rpo(&graph);
+    rpo.Run();
+    auto &rpoVec = rpo.GetRpoBlocks();
 
-    std::vector<BasicBlock *> expectedVec = {a, b, c, d, f, e, g};
+    std::vector<BasicBlock *> expectedVec = {a, b, f, g, e, c, d};
 
-    ASSERT_EQ(dfsVec.size(), expectedVec.size());
+    ASSERT_EQ(rpoVec.size(), expectedVec.size());
 
-    for (size_t idx = 0; idx < dfsVec.size(); ++idx) {
-        ASSERT_EQ(dfsVec[idx]->GetId(), expectedVec[idx]->GetId());
+    for (size_t idx = 0; idx < rpoVec.size(); ++idx) {
+        ASSERT_EQ(rpoVec[idx]->GetId(), expectedVec[idx]->GetId());
     }
 }
 
