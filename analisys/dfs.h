@@ -10,12 +10,12 @@ namespace compiler {
 
 class Graph;
 
-class RPO final {
+class DFS final {
 public:
-    NO_COPY_SEMANTIC(RPO);
-    NO_MOVE_SEMANTIC(RPO);
+    NO_COPY_SEMANTIC(DFS);
+    NO_MOVE_SEMANTIC(DFS);
 
-    RPO(Graph *graph) : graph_(graph) {}
+    DFS(Graph *graph) : graph_(graph) {}
 
     std::vector<BasicBlock *> Run();
 
@@ -25,7 +25,7 @@ public:
     }
 
 private:
-    void DFS(std::vector<BasicBlock *> &rpoVector, BasicBlock *block, size_t *blockCount);
+    void DFSImpl(std::vector<BasicBlock *> &dfsVector, BasicBlock *block);
 
 private:
     Graph *graph_ {nullptr};

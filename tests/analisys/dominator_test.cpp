@@ -1,12 +1,11 @@
 #include <gtest/gtest.h>
 
-#include "analisys/rpo.h"
-#include "ir/graph.h"
+#include "analisys/dominator_tree.h"
 #include "ir/ir_builder.h"
 
 namespace compiler::tests {
 
-TEST(RPO, TEST_1)
+TEST(DominatorTree, TEST_1)
 {
     Graph graph;
     IrBuilder builder(&graph);
@@ -28,16 +27,8 @@ TEST(RPO, TEST_1)
     g->AddSuccessor(d);
     e->AddSuccessor(d);
 
-    RPO rpo(&graph);
-    auto rpoVec = rpo.Run();
-
-    std::vector<BasicBlock *> expectedVec = {a, b, f, g, e, c, d};
-
-    ASSERT_EQ(rpoVec.size(), expectedVec.size());
-
-    for (size_t idx = 0; idx < rpoVec.size(); ++idx) {
-        ASSERT_EQ(rpoVec[idx]->GetId(), expectedVec[idx]->GetId());
-    }
+    DominatorTree tree(&graph);
+    tree.Build();
 }
 
-}  // namespace compiler::tests
+} // namespace compiler::tests

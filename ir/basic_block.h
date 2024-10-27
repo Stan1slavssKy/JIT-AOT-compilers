@@ -87,6 +87,31 @@ public:
         return marker_ == marker;
     }
 
+    const std::vector<BasicBlock *> &GetDominatedBlocks() const
+    {
+        return dominatedBlocks_;
+    }
+
+    BasicBlock *GetDominator()
+    {
+        return dominator_;
+    }
+
+    const BasicBlock *GetDominator() const
+    {
+        return dominator_;
+    }
+
+    void SetDominatedBlocks(std::vector<BasicBlock *> &&dominatedBlocks)
+    {
+        dominatedBlocks_ = std::move(dominatedBlocks);
+    }
+
+    void SetDominatedBlocks(const std::vector<BasicBlock *> &dominatedBlocks)
+    {
+        dominatedBlocks_ = dominatedBlocks;
+    }
+
     void Dump(std::stringstream &ss) const;
 
 private:
@@ -102,6 +127,9 @@ private:
     Graph *graph_ {nullptr};
 
     Marker marker_ {false};
+
+    BasicBlock *dominator_ {nullptr};
+    std::vector<BasicBlock *> dominatedBlocks_;
 };
 
 }  // namespace compiler

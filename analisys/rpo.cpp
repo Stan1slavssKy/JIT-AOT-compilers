@@ -3,14 +3,17 @@
 
 namespace compiler {
 
-void RPO::Run()
+std::vector<BasicBlock *> RPO::Run()
 {
-    size_t blockCount = graph_->GetAlivBlockCount();
-    rpoVector_.resize(blockCount);
-    DFS(graph_->GetStartBlock(), &blockCount);
+    size_t blockCount = graph_->GetAliveBlockCount();
+    std::vector<BasicBlock *> rpoVector(blockCount);
+
+    DFS(rpoVector, graph_->GetStartBlock(), &blockCount);
+
+    return rpoVector;
 }
 
-void RPO::DFS(BasicBlock *block, size_t *blockCount)
+void RPO::DFS(std::vector<BasicBlock *> &rpoVector, BasicBlock *block, size_t *blockCount)
 {
     assert(block);
 
@@ -18,14 +21,14 @@ void RPO::DFS(BasicBlock *block, size_t *blockCount)
 
     for (auto succBlock : block->GetSuccessors()) {
         if (!succBlock->IsMarked(marker_)) {
-            DFS(succBlock, blockCount);
+            DFS(rpoVector, succBlock, blockCount);
         }
     }
 
     assert(blockCount != nullptr);
     assert(*blockCount > 0);
 
-    rpoVector_[--(*blockCount)] = block;
+    rpoVector[--(*blockCount)] = block;
 }
 
 }  // namespace compiler

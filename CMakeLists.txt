@@ -22,6 +22,8 @@ set(SOURCES
     ir/basic_block.cpp
     ir/dump_instructions.cpp
     analisys/rpo.cpp
+    analisys/dfs.cpp
+    analisys/dominator_tree.cpp
 )
 
 add_library(compiler_static STATIC ${SOURCES})

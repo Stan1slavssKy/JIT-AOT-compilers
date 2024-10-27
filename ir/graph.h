@@ -24,7 +24,14 @@ public:
 
     BasicBlock *GetStartBlock() const;
 
-    size_t GetAlivBlockCount() const;
+    size_t GetAliveBlockCount() const;
+
+    void RunRpo();
+
+    void UnmarkRPOVector();
+
+    std::vector<BasicBlock *> &GetRpoVector();
+    const std::vector<BasicBlock *> &GetRpoVector() const;
 
     void Dump(std::stringstream &ss) const;
 
@@ -32,6 +39,8 @@ private:
     // Graph owns all basic blocks and instruction of the current function.
     std::vector<std::unique_ptr<BasicBlock>> basicBlocks_;
     std::vector<std::unique_ptr<Instruction>> instructions_;
+
+    std::vector<BasicBlock *> rpoVector_;
 };
 
 }  // namespace compiler
