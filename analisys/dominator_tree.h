@@ -24,6 +24,8 @@ private:
     std::vector<BasicBlock *> CalculateDominatedBlocks(BasicBlock *block, const std::vector<BasicBlock *> &originalVec,
                                                        const std::vector<BasicBlock *> &reachableBlocks);
 
+    void CalculateImmediateDominators(BasicBlock *block);
+
 private:
     Graph *graph_ {nullptr};
 

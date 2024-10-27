@@ -112,6 +112,36 @@ public:
         dominatedBlocks_ = dominatedBlocks;
     }
 
+    bool IsDominatesOver(BasicBlock *block) const
+    {
+        if (block == this) {
+            return true;
+        }
+        auto it = std::find_if(dominatedBlocks_.begin(), dominatedBlocks_.end(),
+                               [block](auto domBlock) { return domBlock == block; });
+        return it != dominatedBlocks_.end();
+    }
+
+    void SetImmediateDominatedBlocks(const std::vector<BasicBlock *> &blocks)
+    {
+        immediateDominatedBlocks_ = blocks;
+    }
+
+    void SetImmediateDominatedBlocks(std::vector<BasicBlock *> &&blocks)
+    {
+        immediateDominatedBlocks_ = std::move(blocks);
+    }
+
+    const std::vector<BasicBlock *> &GetImmediateDominatedBlocks() const
+    {
+        return immediateDominatedBlocks_;
+    }
+
+    std::vector<BasicBlock *> &GetImmediateDominatedBlocks()
+    {
+        return immediateDominatedBlocks_;
+    }
+
     void Dump(std::stringstream &ss) const;
 
 private:
@@ -130,6 +160,7 @@ private:
 
     BasicBlock *dominator_ {nullptr};
     std::vector<BasicBlock *> dominatedBlocks_;
+    std::vector<BasicBlock *> immediateDominatedBlocks_;
 };
 
 }  // namespace compiler

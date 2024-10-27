@@ -27,6 +27,10 @@ void DominatorTree::Build()
     auto *rootBlock = graph_->GetStartBlock();
     rootBlock->SetDominatedBlocks(rpoVec);  // todo: remove excessive copying
 
+    for (auto it = rpoVec.begin() + 1; it < rpoVec.end(); ++it) {
+        dominatorsMap_.emplace(*it, std::vector<BasicBlock *> {rootBlock});
+    }
+
     DFS dfs(graph_);
 
     for (auto blockIt = rpoVec.begin() + 1; blockIt < rpoVec.end(); ++blockIt) {
@@ -61,6 +65,10 @@ void DominatorTree::Build()
         }
         std::cout << std::endl;
     }
+
+    for (auto blockIt = rpoVec.begin(); blockIt < rpoVec.end(); ++blockIt) {
+        CalculateImmediateDominators(*blockIt);
+    }
 }
 
 std::vector<BasicBlock *> DominatorTree::CalculateDominatedBlocks(BasicBlock *block,
@@ -72,24 +80,51 @@ std::vector<BasicBlock *> DominatorTree::CalculateDominatedBlocks(BasicBlock *bl
     std::vector<BasicBlock *> dominatedBlocks;
 
     // + 1 to skip root block of the graph.
-    for (auto originalVecIt = originalVec.begin() + 1; originalVecIt < originalVec.end(); ++originalVecIt) {
+    for (auto originalVecIt = originalVec.begin(); originalVecIt < originalVec.end(); ++originalVecIt) {
         // std::cout << "Try to find " << static_cast<char>('A' + (*originalVecIt)->GetId()) << std::endl;
         auto dominatedBlock = std::find_if(
-            reachableBlocks.begin() + 1, reachableBlocks.end(),
+            reachableBlocks.begin(), reachableBlocks.end(),
             [&originalVecIt](auto reachableBlocksIt) -> bool { return reachableBlocksIt == *originalVecIt; });
 
         if (dominatedBlock == reachableBlocks.end() && *originalVecIt != block) {
             dominatedBlocks.push_back(*originalVecIt);
             auto mapIt = dominatorsMap_.find(*originalVecIt);
-            if (mapIt == dominatorsMap_.end()) {
-                dominatorsMap_.emplace(*originalVecIt, std::vector<BasicBlock *> {block});
-            } else {
+            if (mapIt != dominatorsMap_.end()) {
                 mapIt->second.push_back(block);
+            } else {
+                UNREACHABLE();
             }
         }
     }
 
     return dominatedBlocks;
+}
+
+void DominatorTree::CalculateImmediateDominators(BasicBlock *block)
+{
+    std::vector<BasicBlock *> immediateDominators;
+
+    for (auto dominatedBlockIt : block->GetDominatedBlocks()) {
+        auto mapIt = dominatorsMap_.find(dominatedBlockIt);
+        if (mapIt != dominatorsMap_.end()) {
+            auto blocksDominatesOverCurrent = mapIt->second;
+            auto it = std::find_if_not(blocksDominatesOverCurrent.begin(), blocksDominatesOverCurrent.end(),
+                                       [block](auto domIt) { return domIt->IsDominatesOver(block); });
+            if (it == blocksDominatesOverCurrent.end()) {
+                immediateDominators.push_back(dominatedBlockIt);
+            }
+        } else {
+            UNREACHABLE();
+        }
+    }
+
+    std::cout << "Block = " << static_cast<char>('A' + block->GetId()) << " immediately dominates over: ";
+    for (auto it : immediateDominators) {
+        std::cout << static_cast<char>('A' + it->GetId()) << " ";
+    }
+    std::cout << std::endl;
+
+    block->SetImmediateDominatedBlocks(std::move(immediateDominators));
 }
 
 }  // namespace compiler
