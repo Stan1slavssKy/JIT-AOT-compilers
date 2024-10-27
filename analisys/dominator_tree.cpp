@@ -35,14 +35,31 @@ void DominatorTree::Build()
 
         auto reachableBlocks = dfs.Run();
 
+        std::cout << "Reachable blocks: ";
+        for (auto i : reachableBlocks) {
+            std::cout << static_cast<char>('A' + (i)->GetId()) << " ";
+        }
+        std::cout << std::endl;
+
         (*blockIt)->SetDominatedBlocks(CalculateDominatedBlocks(*blockIt, rpoVec, reachableBlocks));
 
+        std::cout << "Dominated blocks: ";
         for (auto i : (*blockIt)->GetDominatedBlocks()) {
-            std::cout << static_cast<char>('A' + (i)->GetId()) << std::endl;
+            std::cout << static_cast<char>('A' + (i)->GetId()) << " ";
         }
+        std::cout << std::endl;
 
         UmmarkVector(reachableBlocks);
         (*blockIt)->SetMarker(false);
+        std::cout << "==========================" << std::endl;
+    }
+
+    for (auto i : dominatorsMap_) {
+        std::cout << "Block = " << static_cast<char>('A' + i.first->GetId()) << " dominated by: ";
+        for (auto it : i.second) {
+            std::cout << static_cast<char>('A' + it->GetId()) << " ";
+        }
+        std::cout << std::endl;
     }
 }
 
@@ -56,19 +73,18 @@ std::vector<BasicBlock *> DominatorTree::CalculateDominatedBlocks(BasicBlock *bl
 
     // + 1 to skip root block of the graph.
     for (auto originalVecIt = originalVec.begin() + 1; originalVecIt < originalVec.end(); ++originalVecIt) {
-        // std::cout << "[CalculateDominatedBlocks]" << std::endl;
-        auto dominatedBlock = std::find_if_not(reachableBlocks.begin() + 1, reachableBlocks.end(),
-                                               [&originalVecIt](auto reachableBlocksIt) -> bool {
-                                                   return reachableBlocksIt->GetId() == (*originalVecIt)->GetId();
-                                               });
+        // std::cout << "Try to find " << static_cast<char>('A' + (*originalVecIt)->GetId()) << std::endl;
+        auto dominatedBlock = std::find_if(
+            reachableBlocks.begin() + 1, reachableBlocks.end(),
+            [&originalVecIt](auto reachableBlocksIt) -> bool { return reachableBlocksIt == *originalVecIt; });
 
-        if (dominatedBlock != reachableBlocks.end() && *dominatedBlock != block) {
-            dominatedBlocks.push_back(*dominatedBlock);
-            auto mapIt = dominatorsMap_.find(*dominatedBlock);
+        if (dominatedBlock == reachableBlocks.end() && *originalVecIt != block) {
+            dominatedBlocks.push_back(*originalVecIt);
+            auto mapIt = dominatorsMap_.find(*originalVecIt);
             if (mapIt == dominatorsMap_.end()) {
-                dominatorsMap_.emplace(*dominatedBlock, std::vector<BasicBlock *>{block});
+                dominatorsMap_.emplace(*originalVecIt, std::vector<BasicBlock *> {block});
             } else {
-                mapIt->second.push_back(*dominatedBlock);
+                mapIt->second.push_back(block);
             }
         }
     }

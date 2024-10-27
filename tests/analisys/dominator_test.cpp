@@ -31,4 +31,4 @@ TEST(DominatorTree, TEST_1)
     tree.Build();
 }
 
-} // namespace compiler::tests
+}  // namespace compiler::tests
