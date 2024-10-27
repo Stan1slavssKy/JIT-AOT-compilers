@@ -177,4 +177,100 @@ TEST(DominatorTree, TEST_2)
     ASSERT_EQ(hImmDom.size(), 0);
 }
 
+/*
+    Graph:
+            A      /--------------------\
+            |      |                    |
+            v      v                    |
+      /---> B ---> C ---> D ----------> G ---> I
+      |     |             ^             ^      ^
+      |     |             |             |      |
+      |     \-----------> E ---> F ---> H -----/
+      |                          |
+      \--------------------------/
+
+    Dominator tree:
+
+             /---> D
+            /---> C
+    A ---> B ---> E ---> F ---> H
+            \---> G
+             \---> I
+*/
+TEST(DominatorTree, TEST_3)
+{
+    Graph graph;
+    IrBuilder builder(&graph);
+
+    auto *a = builder.CreateBB();
+    auto *b = builder.CreateBB();
+    auto *c = builder.CreateBB();
+    auto *d = builder.CreateBB();
+    auto *e = builder.CreateBB();
+    auto *f = builder.CreateBB();
+    auto *g = builder.CreateBB();
+    auto *h = builder.CreateBB();
+    auto *i = builder.CreateBB();
+
+    a->AddSuccessor(b);
+
+    b->AddSuccessor(c);
+    b->AddSuccessor(e);
+
+    c->AddSuccessor(d);
+
+    e->AddSuccessor(d);
+    e->AddSuccessor(f);
+
+    d->AddSuccessor(g);
+
+    f->AddSuccessor(b);
+    f->AddSuccessor(h);
+
+    h->AddSuccessor(i);
+    h->AddSuccessor(g);
+
+    g->AddSuccessor(i);
+    g->AddSuccessor(c);
+
+    DominatorTree tree(&graph);
+    tree.Build();
+
+    auto &aImmDom = a->GetImmediateDominatedBlocks();
+    ASSERT_EQ(aImmDom.size(), 1);
+    ASSERT_EQ(aImmDom[0], b);
+
+    auto &bImmDom = b->GetImmediateDominatedBlocks();
+    ASSERT_EQ(bImmDom.size(), 5);
+
+    std::set<BasicBlock *> expectedBImmDom = {i, g, c, d, e};
+    for (auto it : bImmDom) {
+        auto findIt = expectedBImmDom.find(it);
+        ASSERT_FALSE(findIt == expectedBImmDom.end());
+    }
+
+    auto &eImmDom = e->GetImmediateDominatedBlocks();
+    ASSERT_EQ(eImmDom.size(), 1);
+    ASSERT_EQ(eImmDom[0], f);
+
+    auto &fImmDom = f->GetImmediateDominatedBlocks();
+    ASSERT_EQ(fImmDom.size(), 1);
+    ASSERT_EQ(fImmDom[0], h);
+
+    auto &hImmDom = h->GetImmediateDominatedBlocks();
+    ASSERT_EQ(hImmDom.size(), 0);
+
+    auto &iImmDom = i->GetImmediateDominatedBlocks();
+    ASSERT_EQ(iImmDom.size(), 0);
+
+    auto &gImmDom = g->GetImmediateDominatedBlocks();
+    ASSERT_EQ(gImmDom.size(), 0);
+
+    auto &cImmDom = c->GetImmediateDominatedBlocks();
+    ASSERT_EQ(cImmDom.size(), 0);
+
+    auto &dImmDom = d->GetImmediateDominatedBlocks();
+    ASSERT_EQ(dImmDom.size(), 0);
+}
+
 }  // namespace compiler::tests

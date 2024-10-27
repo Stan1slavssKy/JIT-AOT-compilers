@@ -21,8 +21,8 @@ public:
     void Build();
 
 private:
-    std::vector<BasicBlock *> CalculateDominatedBlocks(BasicBlock *block, const std::vector<BasicBlock *> &originalVec,
-                                                       const std::vector<BasicBlock *> &reachableBlocks);
+    void CalculateDominatedBlocks(BasicBlock *block, const std::vector<BasicBlock *> &originalVec,
+                                  const std::vector<BasicBlock *> &reachableBlocks);
 
     void CalculateImmediateDominators(BasicBlock *block);
 

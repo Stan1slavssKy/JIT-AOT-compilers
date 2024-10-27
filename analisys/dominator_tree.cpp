@@ -25,7 +25,7 @@ void DominatorTree::Build()
     auto &rpoVec = graph_->GetRpoVector();
 
     auto *rootBlock = graph_->GetStartBlock();
-    rootBlock->SetDominatedBlocks(rpoVec);  // todo: remove excessive copying
+    rootBlock->SetDominatedBlocks(rpoVec);
 
     for (auto it = rpoVec.begin() + 1; it < rpoVec.end(); ++it) {
         dominatorsMap_.emplace(*it, std::vector<BasicBlock *> {rootBlock});
@@ -34,36 +34,14 @@ void DominatorTree::Build()
     DFS dfs(graph_);
 
     for (auto blockIt = rpoVec.begin() + 1; blockIt < rpoVec.end(); ++blockIt) {
-        std::cout << "Run through block " << static_cast<char>('A' + (*blockIt)->GetId()) << std::endl;
-        (*blockIt)->SetMarker(true);  // mark block to remove it from RPO bypass.
+        (*blockIt)->SetMarker(true);  // mark block to remove it from DFS bypass.
 
         auto reachableBlocks = dfs.Run();
 
-        std::cout << "Reachable blocks: ";
-        for (auto i : reachableBlocks) {
-            std::cout << static_cast<char>('A' + (i)->GetId()) << " ";
-        }
-        std::cout << std::endl;
+        CalculateDominatedBlocks(*blockIt, rpoVec, reachableBlocks);
 
-        (*blockIt)->SetDominatedBlocks(CalculateDominatedBlocks(*blockIt, rpoVec, reachableBlocks));
-
-        std::cout << "Dominated blocks: ";
-        for (auto i : (*blockIt)->GetDominatedBlocks()) {
-            std::cout << static_cast<char>('A' + (i)->GetId()) << " ";
-        }
-        std::cout << std::endl;
-
-        UmmarkVector(reachableBlocks);
         (*blockIt)->SetMarker(false);
-        std::cout << "==========================" << std::endl;
-    }
-
-    for (auto i : dominatorsMap_) {
-        std::cout << "Block = " << static_cast<char>('A' + i.first->GetId()) << " dominated by: ";
-        for (auto it : i.second) {
-            std::cout << static_cast<char>('A' + it->GetId()) << " ";
-        }
-        std::cout << std::endl;
+        UmmarkVector(reachableBlocks);
     }
 
     for (auto blockIt = rpoVec.begin(); blockIt < rpoVec.end(); ++blockIt) {
@@ -71,17 +49,14 @@ void DominatorTree::Build()
     }
 }
 
-std::vector<BasicBlock *> DominatorTree::CalculateDominatedBlocks(BasicBlock *block,
-                                                                  const std::vector<BasicBlock *> &originalVec,
-                                                                  const std::vector<BasicBlock *> &reachableBlocks)
+void DominatorTree::CalculateDominatedBlocks(BasicBlock *block, const std::vector<BasicBlock *> &originalVec,
+                                             const std::vector<BasicBlock *> &reachableBlocks)
 {
     assert(block);
 
     std::vector<BasicBlock *> dominatedBlocks;
 
-    // + 1 to skip root block of the graph.
     for (auto originalVecIt = originalVec.begin(); originalVecIt < originalVec.end(); ++originalVecIt) {
-        // std::cout << "Try to find " << static_cast<char>('A' + (*originalVecIt)->GetId()) << std::endl;
         auto dominatedBlock = std::find_if(
             reachableBlocks.begin(), reachableBlocks.end(),
             [&originalVecIt](auto reachableBlocksIt) -> bool { return reachableBlocksIt == *originalVecIt; });
@@ -97,11 +72,13 @@ std::vector<BasicBlock *> DominatorTree::CalculateDominatedBlocks(BasicBlock *bl
         }
     }
 
-    return dominatedBlocks;
+    block->SetDominatedBlocks(std::move(dominatedBlocks));
 }
 
 void DominatorTree::CalculateImmediateDominators(BasicBlock *block)
 {
+    assert(block);
+
     std::vector<BasicBlock *> immediateDominators;
 
     for (auto dominatedBlockIt : block->GetDominatedBlocks()) {
@@ -117,12 +94,6 @@ void DominatorTree::CalculateImmediateDominators(BasicBlock *block)
             UNREACHABLE();
         }
     }
-
-    std::cout << "Block = " << static_cast<char>('A' + block->GetId()) << " immediately dominates over: ";
-    for (auto it : immediateDominators) {
-        std::cout << static_cast<char>('A' + it->GetId()) << " ";
-    }
-    std::cout << std::endl;
 
     block->SetImmediateDominatedBlocks(std::move(immediateDominators));
 }
