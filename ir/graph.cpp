@@ -1,5 +1,6 @@
 #include "ir/graph.h"
 #include "analisys/rpo.h"
+#include "analisys/dominator_tree.h"
 
 namespace compiler {
 
@@ -56,5 +57,23 @@ const std::vector<BasicBlock *> &Graph::GetRpoVector() const
 {
     return rpoVector_;
 }
+
+void Graph::BuildDominatorTree()
+{
+    DominatorTree tree(this);
+    tree.Build();
+}
+
+void Graph::SetRootLoop(std::unique_ptr<Loop> rootLoop)
+{
+    rootLoop_ = std::move(rootLoop);
+}
+
+Loop *Graph::GetRootLoop() const
+{
+    return rootLoop_.get();
+}
+
+
 
 }  // namespace compiler

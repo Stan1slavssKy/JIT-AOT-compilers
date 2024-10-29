@@ -24,6 +24,7 @@ set(SOURCES
     analisys/rpo.cpp
     analisys/dfs.cpp
     analisys/dominator_tree.cpp
+    analisys/loop_analizer.cpp
 )
 
 add_library(compiler_static STATIC ${SOURCES})

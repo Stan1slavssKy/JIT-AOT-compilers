@@ -3,6 +3,7 @@ cmake_minimum_required(VERSION 3.13)
 set(SOURCES 
     rpo_test.cpp
     dominator_tree_test.cpp
+    loop_analizer.cpp
 )
 
 add_library(analisys_tests_obj OBJECT ${SOURCES})

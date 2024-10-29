@@ -9,6 +9,8 @@
 #include "ir/basic_block.h"
 #include "ir/instruction.h"
 
+#include "analisys/loop.h"
+
 namespace compiler {
 
 class Graph final {
@@ -33,6 +35,11 @@ public:
     std::vector<BasicBlock *> &GetRpoVector();
     const std::vector<BasicBlock *> &GetRpoVector() const;
 
+    void BuildDominatorTree();
+
+    void SetRootLoop(std::unique_ptr<Loop> rootLoop);
+    Loop *GetRootLoop() const;
+
     void Dump(std::stringstream &ss) const;
 
 private:
@@ -41,6 +48,8 @@ private:
     std::vector<std::unique_ptr<Instruction>> instructions_;
 
     std::vector<BasicBlock *> rpoVector_;
+
+    std::unique_ptr<Loop> rootLoop_;
 };
 
 }  // namespace compiler
