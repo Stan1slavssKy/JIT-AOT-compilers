@@ -7,6 +7,7 @@ namespace compiler {
 
 class Graph;
 class Loop;
+class BasicBlock;
 
 class LoopAnalizer final {
 public:
@@ -20,7 +21,9 @@ public:
 private:
     void CreateRootLoop();
 
-    void CollectBackEdges();
+    void CollectLatches();
+
+    void SearchLatch(BasicBlock *block);
 
 private:
     Graph *graph_ {nullptr};

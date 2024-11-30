@@ -3,6 +3,7 @@
 
 #include "utils/macros.h"
 #include "ir/basic_block.h"
+#include "ir/marker.h"
 
 #include <vector>
 
@@ -30,7 +31,7 @@ private:
 private:
     Graph *graph_ {nullptr};
 
-    Marker marker_ {true};
+    Marker marker_;
 };
 
 }  // namespace compiler

@@ -1,6 +1,8 @@
 #include "analisys/loop_analizer.h"
 #include "analisys/loop.h"
+
 #include "ir/graph.h"
+#include "ir/basic_block.h"
 
 namespace compiler {
 
@@ -8,7 +10,7 @@ void LoopAnalizer::Run()
 {
     graph_->BuildDominatorTree();
     CreateRootLoop();
-    CollectBackEdges();
+    CollectLatches();
 }
 
 void LoopAnalizer::CreateRootLoop()
@@ -19,10 +21,15 @@ void LoopAnalizer::CreateRootLoop()
     graph_->SetRootLoop(std::move(rootLoop));
 }
 
-void LoopAnalizer::CollectBackEdges()
+void LoopAnalizer::CollectLatches()
 {
     auto *root = graph_->GetStartBlock();
     (void)root;
+}
+
+void LoopAnalizer::SearchLatch(BasicBlock *block)
+{
+    (void)block;
 }
 
 }  // namespace compiler

@@ -38,13 +38,12 @@ size_t Graph::GetAliveBlockCount() const
 void Graph::RunRpo()
 {
     RPO rpo(this);
+    auto marker = CreateNewMarker();
+    rpo.SetMarker(marker);
     rpoVector_ = rpo.Run();
-}
 
-void Graph::UnmarkRPOVector()
-{
     for (auto *block : rpoVector_) {
-        block->SetMarker(false);
+        block->Unmark(marker);
     }
 }
 
@@ -72,6 +71,16 @@ void Graph::SetRootLoop(std::unique_ptr<Loop> rootLoop)
 Loop *Graph::GetRootLoop() const
 {
     return rootLoop_.get();
+}
+
+Marker Graph::CreateNewMarker()
+{
+    return markerManager_.CreateNewMarker();
+}
+
+void Graph::DeleteMarker(Marker marker)
+{
+    markerManager_.DeleteMarker(marker);
 }
 
 }  // namespace compiler

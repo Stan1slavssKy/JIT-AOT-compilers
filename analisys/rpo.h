@@ -3,6 +3,7 @@
 
 #include "utils/macros.h"
 #include "ir/basic_block.h"
+#include "ir/marker.h"
 
 #include <vector>
 
@@ -24,13 +25,18 @@ public:
         marker_ = marker;
     }
 
+    Marker GetMarker() const
+    {
+        return marker_;
+    }
+
 private:
     void DFS(std::vector<BasicBlock *> &rpoVector, BasicBlock *block, size_t *blockCount);
 
 private:
     Graph *graph_ {nullptr};
 
-    Marker marker_ {true};
+    Marker marker_;
 };
 
 }  // namespace compiler

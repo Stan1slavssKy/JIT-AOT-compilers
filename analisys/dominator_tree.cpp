@@ -9,10 +9,10 @@ namespace compiler {
 
 namespace {
 
-void UmmarkVector(const std::vector<BasicBlock *> &vector)
+void UmmarkVector(const std::vector<BasicBlock *> &vector, Marker marker)
 {
     for (auto *block : vector) {
-        block->SetMarker(false);
+        block->Unmark(marker);
     }
 }
 
@@ -21,7 +21,6 @@ void UmmarkVector(const std::vector<BasicBlock *> &vector)
 void DominatorTree::Build()
 {
     graph_->RunRpo();
-    graph_->UnmarkRPOVector();
     auto &rpoVec = graph_->GetRpoVector();
 
     auto *rootBlock = graph_->GetStartBlock();
@@ -32,16 +31,18 @@ void DominatorTree::Build()
     }
 
     DFS dfs(graph_);
+    auto marker = graph_->CreateNewMarker();
+    dfs.SetMarker(marker);
 
     for (auto blockIt = rpoVec.begin() + 1; blockIt < rpoVec.end(); ++blockIt) {
-        (*blockIt)->SetMarker(true);  // mark block to remove it from DFS bypass.
+        (*blockIt)->SetMarker(marker);  // mark block to remove it from DFS bypass.
 
         auto reachableBlocks = dfs.Run();
 
         CalculateDominatedBlocks(*blockIt, rpoVec, reachableBlocks);
 
-        (*blockIt)->SetMarker(false);
-        UmmarkVector(reachableBlocks);
+        (*blockIt)->Unmark(marker);
+        UmmarkVector(reachableBlocks, marker);
     }
 
     for (auto blockIt = rpoVec.begin(); blockIt < rpoVec.end(); ++blockIt) {

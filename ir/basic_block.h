@@ -3,6 +3,7 @@
 
 #include "utils/macros.h"
 #include "ir/instruction.h"
+#include "ir/marker.h"
 
 #include <vector>
 #include <string>
@@ -14,7 +15,6 @@ namespace compiler {
 class Graph;
 
 using BasicBlockId = size_t;
-using Marker = bool;
 
 class BasicBlock final {
 public:
@@ -106,12 +106,17 @@ public:
 
     void SetMarker(Marker marker)
     {
-        marker_ = marker;
+        marker_ |= marker;
+    }
+
+    void Unmark(Marker marker)
+    {
+        marker_ &= (~marker);
     }
 
     bool IsMarked(Marker marker) const
     {
-        return marker_ == marker;
+        return marker_ & marker;
     }
 
     const std::vector<BasicBlock *> &GetDominatedBlocks() const
@@ -168,7 +173,7 @@ private:
 
     Graph *graph_ {nullptr};
 
-    Marker marker_ {false};
+    Marker marker_;
 
     BasicBlock *immediateDominator_ {nullptr};
     std::vector<BasicBlock *> dominatedBlocks_;

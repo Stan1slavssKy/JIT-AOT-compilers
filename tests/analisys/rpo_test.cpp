@@ -29,6 +29,7 @@ TEST(RPO, TEST_1)
     e->AddSuccessor(d);
 
     RPO rpo(&graph);
+    rpo.SetMarker(graph.CreateNewMarker());
     auto rpoVec = rpo.Run();
 
     std::vector<BasicBlock *> expectedVec = {a, b, f, g, e, c, d};

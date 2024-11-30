@@ -8,10 +8,13 @@
 
 #include "ir/basic_block.h"
 #include "ir/instruction.h"
+#include "ir/marker.h"
 
 #include "analisys/loop.h"
 
 namespace compiler {
+
+class RPO;
 
 class Graph final {
 public:
@@ -30,8 +33,6 @@ public:
 
     void RunRpo();
 
-    void UnmarkRPOVector();
-
     std::vector<BasicBlock *> &GetRpoVector();
     const std::vector<BasicBlock *> &GetRpoVector() const;
 
@@ -42,6 +43,9 @@ public:
 
     void Dump(std::stringstream &ss) const;
 
+    Marker CreateNewMarker();
+    void DeleteMarker(Marker marker);
+
 private:
     // Graph owns all basic blocks and instruction of the current function.
     std::vector<std::unique_ptr<BasicBlock>> basicBlocks_;
@@ -50,6 +54,8 @@ private:
     std::vector<BasicBlock *> rpoVector_;
 
     std::unique_ptr<Loop> rootLoop_;
+
+    MarkerManager markerManager_;
 };
 
 }  // namespace compiler
