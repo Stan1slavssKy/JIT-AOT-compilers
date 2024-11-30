@@ -22,7 +22,7 @@ void LoopAnalizer::CreateRootLoop()
 void LoopAnalizer::CollectBackEdges()
 {
     auto *root = graph_->GetStartBlock();
-
+    (void)root;
 }
 
-} // namespace compiler
+}  // namespace compiler

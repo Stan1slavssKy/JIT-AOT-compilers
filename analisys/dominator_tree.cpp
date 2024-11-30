@@ -79,8 +79,6 @@ void DominatorTree::CalculateImmediateDominators(BasicBlock *block)
 {
     assert(block);
 
-    std::vector<BasicBlock *> immediateDominators;
-
     for (auto dominatedBlockIt : block->GetDominatedBlocks()) {
         auto mapIt = dominatorsMap_.find(dominatedBlockIt);
         if (mapIt != dominatorsMap_.end()) {
@@ -88,14 +86,12 @@ void DominatorTree::CalculateImmediateDominators(BasicBlock *block)
             auto it = std::find_if_not(blocksDominatesOverCurrent.begin(), blocksDominatesOverCurrent.end(),
                                        [block](auto domIt) { return domIt->IsDominatesOver(block); });
             if (it == blocksDominatesOverCurrent.end()) {
-                immediateDominators.push_back(dominatedBlockIt);
+                dominatedBlockIt->SetImmediateDominator(block);
             }
         } else {
             UNREACHABLE();
         }
     }
-
-    block->SetImmediateDominatedBlocks(std::move(immediateDominators));
 }
 
 }  // namespace compiler

@@ -4,9 +4,6 @@
 
 namespace compiler::tests {
 
-TEST(LoopAnalizer, TEST_1)
-{
-
-}
+TEST(LoopAnalizer, TEST_1) {}
 
 }  // namespace compiler::tests

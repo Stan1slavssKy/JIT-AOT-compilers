@@ -36,6 +36,33 @@ public:
         }
     }
 
+    /// `prevInsn` -- instruction after which `insn` will be inserted
+    /// `prevInsn` must be pass as nullpt to insert `insn` in the beginning
+    void InsertInstruction(Instruction *prevInsn, Instruction *insn)
+    {
+        if (prevInsn == lastInsn_) {
+            PushInstruction(insn);
+            return;
+        }
+
+        if (prevInsn == nullptr) {
+            firstInsn_->SetPrev(insn);
+            insn->SetNext(firstInsn_);
+            insn->SetPrev(nullptr);
+            firstInsn_ = insn;
+            return;
+        }
+
+        auto *next = prevInsn->GetNext();
+        assert(next != nullptr);
+
+        next->SetPrev(insn);
+        insn->SetNext(next);
+
+        insn->SetPrev(prevInsn);
+        prevInsn->SetNext(insn);
+    }
+
     void SetId(BasicBlockId id)
     {
         bbId_ = id;
@@ -92,14 +119,19 @@ public:
         return dominatedBlocks_;
     }
 
-    BasicBlock *GetDominator()
+    void SetImmediateDominator(BasicBlock *dominator)
     {
-        return dominator_;
+        immediateDominator_ = dominator;
     }
 
-    const BasicBlock *GetDominator() const
+    BasicBlock *GetImmediateDominator()
     {
-        return dominator_;
+        return immediateDominator_;
+    }
+
+    const BasicBlock *GetImmediateDominator() const
+    {
+        return immediateDominator_;
     }
 
     void SetDominatedBlocks(std::vector<BasicBlock *> &&dominatedBlocks)
@@ -122,26 +154,6 @@ public:
         return it != dominatedBlocks_.end();
     }
 
-    void SetImmediateDominatedBlocks(const std::vector<BasicBlock *> &blocks)
-    {
-        immediateDominatedBlocks_ = blocks;
-    }
-
-    void SetImmediateDominatedBlocks(std::vector<BasicBlock *> &&blocks)
-    {
-        immediateDominatedBlocks_ = std::move(blocks);
-    }
-
-    const std::vector<BasicBlock *> &GetImmediateDominatedBlocks() const
-    {
-        return immediateDominatedBlocks_;
-    }
-
-    std::vector<BasicBlock *> &GetImmediateDominatedBlocks()
-    {
-        return immediateDominatedBlocks_;
-    }
-
     void Dump(std::stringstream &ss) const;
 
 private:
@@ -158,9 +170,8 @@ private:
 
     Marker marker_ {false};
 
-    BasicBlock *dominator_ {nullptr};
+    BasicBlock *immediateDominator_ {nullptr};
     std::vector<BasicBlock *> dominatedBlocks_;
-    std::vector<BasicBlock *> immediateDominatedBlocks_;
 };
 
 }  // namespace compiler

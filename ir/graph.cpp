@@ -74,6 +74,4 @@ Loop *Graph::GetRootLoop() const
     return rootLoop_.get();
 }
 
-
-
 }  // namespace compiler

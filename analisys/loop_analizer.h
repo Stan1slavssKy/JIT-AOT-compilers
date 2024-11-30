@@ -28,6 +28,6 @@ private:
     Loop *rootLoop_ {nullptr};
 };
 
-} // namespace compiler
+}  // namespace compiler
 
-#endif // ANALISYS_LOOP_ANALIZER_H
+#endif  // ANALISYS_LOOP_ANALIZER_H

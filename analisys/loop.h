@@ -4,7 +4,7 @@
 #include <vector>
 
 namespace compiler {
-    
+
 class BasicBlock;
 
 class Loop final {
@@ -27,6 +27,6 @@ private:
     bool isRoot_ {false};
 };
 
-} // namespace compiler
+}  // namespace compiler
 
-#endif // ANALISYS_LOOP_H
+#endif  // ANALISYS_LOOP_H
