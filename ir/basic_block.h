@@ -13,6 +13,7 @@
 namespace compiler {
 
 class Graph;
+class Loop;
 
 using BasicBlockId = size_t;
 
@@ -114,6 +115,8 @@ public:
         marker_ &= (~marker);
     }
 
+    void Unmark();
+
     bool IsMarked(Marker marker) const
     {
         return marker_ & marker;
@@ -159,6 +162,23 @@ public:
         return it != dominatedBlocks_.end();
     }
 
+    void SetLoop(Loop *loop)
+    {
+        loop_ = loop;
+    }
+
+    Loop *GetLoop()
+    {
+        return loop_;
+    }
+
+    const Loop *GetLoop() const
+    {
+        return loop_;
+    }
+
+    bool IsHeader() const;
+
     void Dump(std::stringstream &ss) const;
 
 private:
@@ -177,6 +197,8 @@ private:
 
     BasicBlock *immediateDominator_ {nullptr};
     std::vector<BasicBlock *> dominatedBlocks_;
+
+    Loop *loop_ {nullptr};
 };
 
 }  // namespace compiler

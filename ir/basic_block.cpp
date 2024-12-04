@@ -1,4 +1,6 @@
 #include "ir/basic_block.h"
+#include "ir/graph.h"
+#include "analisys/loop.h"
 
 #include <iomanip>
 
@@ -15,6 +17,16 @@ void BasicBlock::Dump(std::stringstream &ss) const
         ss << "\n";
         currInsn = currInsn->GetNext();
     }
+}
+
+void BasicBlock::Unmark()
+{
+    marker_ = graph_->GetEmptyMarker();
+}
+
+bool BasicBlock::IsHeader() const
+{
+    return loop_->GetHeader() == this;
 }
 
 }  // namespace compiler

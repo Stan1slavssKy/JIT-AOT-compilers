@@ -2,6 +2,9 @@
 #define ANALISYS_LOOP_ANALIZER_H
 
 #include "utils/macros.h"
+#include "ir/marker.h"
+
+#include <vector>
 
 namespace compiler {
 
@@ -20,15 +23,27 @@ public:
 
 private:
     void CreateRootLoop();
-
     void CollectLatches();
+    void PopulateLoops();
+    void BuildLoopTree();
 
-    void SearchLatch(BasicBlock *block);
+    void SearchLatchDFS(BasicBlock *block);
+    void ProcessNewLatch(BasicBlock *header, BasicBlock *latch);
+
+    void ProcessReducibleLoopHeader(Loop *loop, BasicBlock *header);
+    void ProcessIrreducibleLoopHeader(Loop *loop);
+
+    void LoopSearchDFS(Loop *loop, BasicBlock *block);
 
 private:
     Graph *graph_ {nullptr};
 
     Loop *rootLoop_ {nullptr};
+
+    Marker blackMrk_;
+    Marker grayMrk_;
+
+    std::vector<BasicBlock *> latches_;
 };
 
 }  // namespace compiler

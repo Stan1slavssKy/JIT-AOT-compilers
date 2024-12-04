@@ -46,10 +46,20 @@ public:
     Marker CreateNewMarker();
     void DeleteMarker(Marker marker);
 
+    Marker GetEmptyMarker() const;
+
+    static void UnmarkVector(const std::vector<BasicBlock *> vector, Marker marker);
+    static void UnmarkVector(const std::vector<BasicBlock *> vector);
+    void UnmarkRpo();
+    void UnmarkRpo(Marker marker);
+
+    Loop *CreateNewLoop(BasicBlock *header);
+
 private:
     // Graph owns all basic blocks and instruction of the current function.
     std::vector<std::unique_ptr<BasicBlock>> basicBlocks_;
     std::vector<std::unique_ptr<Instruction>> instructions_;
+    std::vector<std::unique_ptr<Loop>> loops_;
 
     std::vector<BasicBlock *> rpoVector_;
 

@@ -42,9 +42,8 @@ void Graph::RunRpo()
     rpo.SetMarker(marker);
     rpoVector_ = rpo.Run();
 
-    for (auto *block : rpoVector_) {
-        block->Unmark(marker);
-    }
+    DeleteMarker(marker);
+    UnmarkRpo();
 }
 
 std::vector<BasicBlock *> &Graph::GetRpoVector()
@@ -81,6 +80,47 @@ Marker Graph::CreateNewMarker()
 void Graph::DeleteMarker(Marker marker)
 {
     markerManager_.DeleteMarker(marker);
+}
+
+Marker Graph::GetEmptyMarker() const
+{
+    return markerManager_.GetEmptyMarker();
+}
+
+Loop *Graph::CreateNewLoop(BasicBlock *header)
+{
+    auto loop = std::make_unique<Loop>(header);
+    auto loopPtr = loop.get();
+    loop->PushBlock(header);
+
+    loops_.push_back(std::move(loop));
+    return loopPtr;
+}
+
+/* static */
+void Graph::UnmarkVector(const std::vector<BasicBlock *> vector, Marker marker)
+{
+    for (auto block : vector) {
+        block->Unmark(marker);
+    }
+}
+
+/* static */
+void Graph::UnmarkVector(const std::vector<BasicBlock *> vector)
+{
+    for (auto block : vector) {
+        block->Unmark();
+    }
+}
+
+void Graph::UnmarkRpo()
+{
+    UnmarkVector(rpoVector_);
+}
+
+void Graph::UnmarkRpo(Marker marker)
+{
+    UnmarkVector(rpoVector_, marker);
 }
 
 }  // namespace compiler
