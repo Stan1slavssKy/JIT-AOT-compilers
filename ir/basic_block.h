@@ -105,22 +105,10 @@ public:
         return lastInsn_;
     }
 
-    void SetMarker(Marker marker)
-    {
-        marker_ |= marker;
-    }
-
-    void Unmark(Marker marker)
-    {
-        marker_ &= (~marker);
-    }
-
-    void Unmark();
-
-    bool IsMarked(Marker marker) const
-    {
-        return marker_ & marker;
-    }
+    void SetMarker(Marker marker);
+    void EraseMarker(Marker marker);
+    bool IsMarked(Marker marker) const;
+    void ClearMarkers();
 
     const std::vector<BasicBlock *> &GetDominatedBlocks() const
     {
@@ -193,7 +181,7 @@ private:
 
     Graph *graph_ {nullptr};
 
-    Marker marker_;
+    std::array<Marker, MarkerManager::COLORS_NUM> markers_;
 
     BasicBlock *immediateDominator_ {nullptr};
     std::vector<BasicBlock *> dominatedBlocks_;

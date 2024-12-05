@@ -44,14 +44,7 @@ public:
     void Dump(std::stringstream &ss) const;
 
     Marker CreateNewMarker();
-    void DeleteMarker(Marker marker);
-
-    Marker GetEmptyMarker() const;
-
-    static void UnmarkVector(const std::vector<BasicBlock *> vector, Marker marker);
-    static void UnmarkVector(const std::vector<BasicBlock *> vector);
-    void UnmarkRpo();
-    void UnmarkRpo(Marker marker);
+    void EraseMarker(Marker marker);
 
     Loop *CreateNewLoop(BasicBlock *header);
 

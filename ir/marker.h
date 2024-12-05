@@ -9,11 +9,24 @@
 
 namespace compiler {
 
-using Marker = uint64_t;
+using Marker = uint32_t;
+
+// Marker structure:
+// 
+// | unique       |         |
+// | marker index |  color  |
+// |______________|_________|
+//     30 bits      2 bits
 
 class MarkerManager final {
 public:
-    static constexpr size_t MARKER_NUMBER = sizeof(Marker);
+    static constexpr uint32_t COLOR_BITS = 2;
+    static constexpr uint32_t MARKER_INDEX_BITS = 30;
+    static constexpr uint32_t COLORS_NUM = 1 << COLOR_BITS;
+    static constexpr uint32_t MARKER_SHIFT = COLOR_BITS;
+    static constexpr uint32_t COLOR_MASK = (1 << MARKER_SHIFT) - 1;
+    static constexpr uint32_t MAX_MARKER_INDEX = (1 << (MARKER_INDEX_BITS - COLOR_BITS)) - 1;
+    static constexpr uint32_t UNMARKER = 0;
 
 public:
     NO_COPY_SEMANTIC(MarkerManager);
@@ -22,54 +35,33 @@ public:
     MarkerManager() = default;
     ~MarkerManager() = default;
 
+    // Create new marker.
+    // Only 4 markers are available at one moment.
     Marker CreateNewMarker()
     {
-        busyMarkers_[firstNotBusyIdx_] = true;
-        Marker newMarker = 2 << firstNotBusyIdx_;
+        ++markerIndex_;
+        assert(markerIndex_ < MAX_MARKER_INDEX);
 
-        firstNotBusyIdx_ = CalculateNextNotBusyIdx();
-        return newMarker;
-    }
-
-    void DeleteMarker(Marker marker)
-    {
-        busyMarkers_ &= marker;
-        firstNotBusyIdx_ = CalculateMarkerExponent(marker);
-    }
-
-    static Marker GetEmptyMarker()
-    {
-        return 0;
-    }
-
-private:
-    static size_t CalculateMarkerExponent(Marker marker)
-    {
-        Marker temp = 1;
-        for (size_t idx = 0;; ++idx) {
-            temp = temp << idx;
-            if (marker == temp) {
-                return idx;
+        for (size_t idx = 0; idx < COLORS_NUM; ++idx) {
+            if (!colors_[idx]) {
+                Marker marker = (markerIndex_ << COLOR_BITS) | idx;
+                colors_[idx] = 1;
+                return marker;
             }
         }
+
+        std::cerr << "No free markers are available" << std::endl;
         UNREACHABLE();
     }
 
-    size_t CalculateNextNotBusyIdx() const
+    void EraseMarker(Marker marker)
     {
-        for (size_t idx = firstNotBusyIdx_ + 1; idx < MARKER_NUMBER; ++idx) {
-            if (!busyMarkers_[idx]) {
-                return idx;
-            }
-        }
-        std::cerr << "All markers are busy" << std::endl;
-        UNREACHABLE();
+        colors_[marker & COLOR_MASK] = 0;
     }
 
 private:
-    size_t firstNotBusyIdx_ {0};
-
-    std::bitset<MARKER_NUMBER> busyMarkers_ {0};
+    size_t markerIndex_ {0};
+    std::bitset<COLORS_NUM> colors_;
 };
 
 } // namespace compiler

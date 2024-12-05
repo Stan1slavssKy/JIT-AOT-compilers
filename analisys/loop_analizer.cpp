@@ -31,9 +31,8 @@ void LoopAnalizer::CollectLatches()
     auto *root = graph_->GetStartBlock();
     SearchLatchDFS(root);
 
-    graph_->DeleteMarker(blackMrk_);
-    graph_->DeleteMarker(grayMrk_);
-    graph_->UnmarkRpo();
+    graph_->EraseMarker(blackMrk_);
+    graph_->EraseMarker(grayMrk_);
 }
 
 void LoopAnalizer::SearchLatchDFS(BasicBlock *block)
@@ -51,7 +50,7 @@ void LoopAnalizer::SearchLatchDFS(BasicBlock *block)
         }
     }
 
-    block->Unmark(grayMrk_);
+    block->EraseMarker(grayMrk_);
 }
 
 void LoopAnalizer::ProcessNewLatch(BasicBlock *header, BasicBlock *latch)
@@ -86,7 +85,7 @@ void LoopAnalizer::PopulateLoops()
         }
     }
 
-    graph_->DeleteMarker(blackMrk_);
+    graph_->EraseMarker(blackMrk_);
 }
 
 void LoopAnalizer::BuildLoopTree()
@@ -104,13 +103,14 @@ void LoopAnalizer::BuildLoopTree()
 
 void LoopAnalizer::ProcessReducibleLoopHeader(Loop *loop, BasicBlock *header)
 {
+    blackMrk_ = graph_->CreateNewMarker();
     header->SetMarker(blackMrk_);
 
     for (auto latch : loop->GetLatches()) {
         LoopSearchDFS(loop, latch);
     }
 
-    graph_->UnmarkRpo(blackMrk_);
+    graph_->EraseMarker(blackMrk_);
 }
 
 void LoopAnalizer::LoopSearchDFS(Loop *loop, BasicBlock *block)

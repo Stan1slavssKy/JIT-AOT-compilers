@@ -19,14 +19,36 @@ void BasicBlock::Dump(std::stringstream &ss) const
     }
 }
 
-void BasicBlock::Unmark()
-{
-    marker_ = graph_->GetEmptyMarker();
-}
-
 bool BasicBlock::IsHeader() const
 {
     return loop_->GetHeader() == this;
+}
+
+void BasicBlock::SetMarker(Marker marker)
+{
+    uint32_t markerValue = marker >> MarkerManager::COLOR_BITS;
+    uint32_t colorIdx = marker & MarkerManager::COLOR_MASK;
+    markers_[colorIdx] = markerValue;
+}
+
+void BasicBlock::EraseMarker(Marker marker)
+{
+    uint32_t colorIdx = marker & MarkerManager::COLOR_MASK;
+    markers_[colorIdx] = MarkerManager::UNMARKER;
+}
+
+bool BasicBlock::IsMarked(Marker marker) const
+{
+    uint32_t markerValue = marker >> MarkerManager::COLOR_BITS;
+    uint32_t colorIdx = marker & MarkerManager::COLOR_MASK;
+    return markers_[colorIdx] == markerValue;
+}
+
+void BasicBlock::ClearMarkers()
+{
+    for (auto &marker : markers_) {
+        marker = MarkerManager::UNMARKER;
+    }
 }
 
 }  // namespace compiler

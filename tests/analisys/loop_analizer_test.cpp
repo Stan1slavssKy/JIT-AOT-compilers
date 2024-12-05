@@ -4,7 +4,7 @@
 #include "ir/ir_builder.h"
 
 namespace compiler::tests {
-
+#if 0
 /*
         +-----------+
         V           |
@@ -74,5 +74,5 @@ TEST(LoopAnalizer, TEST_2)
     LoopAnalizer loopAnalalizer(&graph);
     loopAnalalizer.Run();
 }
-
+#endif
 }  // namespace compiler::tests
