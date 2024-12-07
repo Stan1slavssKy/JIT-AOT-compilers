@@ -12,7 +12,7 @@ namespace compiler {
 using Marker = uint32_t;
 
 // Marker structure:
-// 
+//
 // | unique       |         |
 // | marker index |  color  |
 // |______________|_________|
@@ -64,6 +64,6 @@ private:
     std::bitset<COLORS_NUM> colors_;
 };
 
-} // namespace compiler
+}  // namespace compiler
 
-#endif // IR_MARKER_H
+#endif  // IR_MARKER_H

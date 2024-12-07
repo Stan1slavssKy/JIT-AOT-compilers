@@ -26,6 +26,11 @@ public:
         blocks_.push_back(block);
     }
 
+    const std::vector<BasicBlock *> GetBlocks() const
+    {
+        return blocks_;
+    }
+
     void SetReducible(bool reducible)
     {
         isReducible_ = reducible;
@@ -68,7 +73,7 @@ public:
 
 private:
     BasicBlock *header_ {nullptr};
-    std::vector<BasicBlock *> latches_ {nullptr};
+    std::vector<BasicBlock *> latches_;
     std::vector<BasicBlock *> blocks_;
 
     Loop *outerLoop_ {nullptr};

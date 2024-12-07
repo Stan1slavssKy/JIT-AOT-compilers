@@ -28,12 +28,14 @@ void BasicBlock::SetMarker(Marker marker)
 {
     uint32_t markerValue = marker >> MarkerManager::COLOR_BITS;
     uint32_t colorIdx = marker & MarkerManager::COLOR_MASK;
+    assert(colorIdx < MarkerManager::COLORS_NUM);
     markers_[colorIdx] = markerValue;
 }
 
 void BasicBlock::EraseMarker(Marker marker)
 {
     uint32_t colorIdx = marker & MarkerManager::COLOR_MASK;
+    assert(colorIdx < MarkerManager::COLORS_NUM);
     markers_[colorIdx] = MarkerManager::UNMARKER;
 }
 
@@ -41,6 +43,7 @@ bool BasicBlock::IsMarked(Marker marker) const
 {
     uint32_t markerValue = marker >> MarkerManager::COLOR_BITS;
     uint32_t colorIdx = marker & MarkerManager::COLOR_MASK;
+    assert(colorIdx < MarkerManager::COLORS_NUM);
     return markers_[colorIdx] == markerValue;
 }
 

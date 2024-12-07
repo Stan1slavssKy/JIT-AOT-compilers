@@ -8,4 +8,4 @@ cmake .. -GNinja
 ninja run_unit_tests
 ```
 ## Requirements
-  - libgtest-dev package for Ubuntu
+  - libgtest-dev and libgmock-dev packages for Ubuntu

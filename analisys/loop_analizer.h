@@ -42,8 +42,6 @@ private:
 
     Marker blackMrk_;
     Marker grayMrk_;
-
-    std::vector<BasicBlock *> latches_;
 };
 
 }  // namespace compiler

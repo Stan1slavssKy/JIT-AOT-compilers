@@ -51,7 +51,7 @@ find_package(GTest REQUIRED)
 
 add_executable(unit_tests)
 
-target_link_libraries(unit_tests PUBLIC GTest::gtest_main)
+target_link_libraries(unit_tests PUBLIC GTest::gtest_main GTest::gmock)
 
 add_subdirectory(tests)
 
