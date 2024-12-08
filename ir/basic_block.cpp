@@ -1,6 +1,6 @@
 #include "ir/basic_block.h"
 #include "ir/graph.h"
-#include "analisys/loop.h"
+#include "analysis/loop.h"
 
 #include <iomanip>
 

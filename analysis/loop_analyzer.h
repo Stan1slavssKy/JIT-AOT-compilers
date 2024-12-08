@@ -1,5 +1,5 @@
-#ifndef ANALISYS_LOOP_ANALIZER_H
-#define ANALISYS_LOOP_ANALIZER_H
+#ifndef ANALYSIS_LOOP_ANALYZER_H
+#define ANALYSIS_LOOP_ANALYZER_H
 
 #include "utils/macros.h"
 #include "ir/marker.h"
@@ -12,12 +12,12 @@ class Graph;
 class Loop;
 class BasicBlock;
 
-class LoopAnalizer final {
+class LoopAnalyzer final {
 public:
-    NO_COPY_SEMANTIC(LoopAnalizer);
-    NO_MOVE_SEMANTIC(LoopAnalizer);
+    NO_COPY_SEMANTIC(LoopAnalyzer);
+    NO_MOVE_SEMANTIC(LoopAnalyzer);
 
-    LoopAnalizer(Graph *graph) : graph_(graph) {}
+    LoopAnalyzer(Graph *graph) : graph_(graph) {}
 
     void Run();
 
@@ -46,4 +46,4 @@ private:
 
 }  // namespace compiler
 
-#endif  // ANALISYS_LOOP_ANALIZER_H
+#endif  // ANALYSIS_LOOP_ANALYZER_H

@@ -1,4 +1,4 @@
-#include "analisys/dfs.h"
+#include "analysis/dfs.h"
 #include "ir/graph.h"
 
 namespace compiler {

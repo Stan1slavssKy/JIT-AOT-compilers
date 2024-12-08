@@ -1,4 +1,4 @@
-#include "analisys/rpo.h"
+#include "analysis/rpo.h"
 #include "ir/graph.h"
 
 namespace compiler {

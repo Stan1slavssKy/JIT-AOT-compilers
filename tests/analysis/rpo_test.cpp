@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 
-#include "analisys/rpo.h"
+#include "analysis/rpo.h"
 #include "ir/graph.h"
 #include "ir/ir_builder.h"
 

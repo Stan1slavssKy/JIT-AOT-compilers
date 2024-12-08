@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 
-#include "analisys/dominator_tree.h"
+#include "analysis/dominator_tree.h"
 #include "ir/ir_builder.h"
 
 namespace compiler::tests {

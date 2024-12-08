@@ -1,5 +1,5 @@
-#include "analisys/dominator_tree.h"
-#include "analisys/dfs.h"
+#include "analysis/dominator_tree.h"
+#include "analysis/dfs.h"
 #include "ir/graph.h"
 
 #include <algorithm>

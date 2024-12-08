@@ -1,5 +1,5 @@
-#ifndef ANALISYS_DOMINATOR_TREE_H
-#define ANALISYS_DOMINATOR_TREE_H
+#ifndef ANALYSIS_DOMINATOR_TREE_H
+#define ANALYSIS_DOMINATOR_TREE_H
 
 #include "utils/macros.h"
 
@@ -35,4 +35,4 @@ private:
 
 }  // namespace compiler
 
-#endif  // ANALISYS_DOMINATOR_TREE_H
+#endif  // ANALYSIS_DOMINATOR_TREE_H

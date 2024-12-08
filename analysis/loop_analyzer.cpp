@@ -1,12 +1,12 @@
-#include "analisys/loop_analizer.h"
-#include "analisys/loop.h"
+#include "analysis/loop_analyzer.h"
+#include "analysis/loop.h"
 
 #include "ir/graph.h"
 #include "ir/basic_block.h"
 
 namespace compiler {
 
-void LoopAnalizer::Run()
+void LoopAnalyzer::Run()
 {
     graph_->BuildDominatorTree();
     CreateRootLoop();
@@ -15,7 +15,7 @@ void LoopAnalizer::Run()
     BuildLoopTree();
 }
 
-void LoopAnalizer::CreateRootLoop()
+void LoopAnalyzer::CreateRootLoop()
 {
     auto rootLoop = std::make_unique<Loop>(nullptr);
     rootLoop->MarkAsRoot();
@@ -23,7 +23,7 @@ void LoopAnalizer::CreateRootLoop()
     graph_->SetRootLoop(std::move(rootLoop));
 }
 
-void LoopAnalizer::CollectLatches()
+void LoopAnalyzer::CollectLatches()
 {
     blackMrk_ = graph_->CreateNewMarker();
     grayMrk_ = graph_->CreateNewMarker();
@@ -35,7 +35,7 @@ void LoopAnalizer::CollectLatches()
     graph_->EraseMarker(grayMrk_);
 }
 
-void LoopAnalizer::SearchLatchDFS(BasicBlock *block)
+void LoopAnalyzer::SearchLatchDFS(BasicBlock *block)
 {
     assert(block);
 
@@ -53,7 +53,7 @@ void LoopAnalizer::SearchLatchDFS(BasicBlock *block)
     block->EraseMarker(grayMrk_);
 }
 
-void LoopAnalizer::ProcessNewLatch(BasicBlock *header, BasicBlock *latch)
+void LoopAnalyzer::ProcessNewLatch(BasicBlock *header, BasicBlock *latch)
 {
     assert(header);
     assert(latch);
@@ -65,31 +65,30 @@ void LoopAnalizer::ProcessNewLatch(BasicBlock *header, BasicBlock *latch)
     }
 
     loop->AddLatch(latch);
-
     bool isReducible = header->IsDominatesOver(latch);
     loop->SetReducible(isReducible);
 }
 
-void LoopAnalizer::PopulateLoops()
+void LoopAnalyzer::PopulateLoops()
 {
     auto &rpoVector = graph_->GetRpoVector();
-    for (auto block : rpoVector) {
+    // Reverse RPO order to have order from inner loop to outer.
+    for (auto it = rpoVector.rbegin(); it != rpoVector.rend(); ++it) {
+        auto *block = *it;
         auto *loop = block->GetLoop();
         if (loop == nullptr || !block->IsHeader()) {
             continue;
         }
         // now we in header
         if (loop->IsReducible()) {
-            std::cerr << "IsReducible!" << std::endl;
             ProcessReducibleLoopHeader(loop, block);
         } else {
             ProcessIrreducibleLoopHeader(loop);
-            std::cerr << "IsNOTReducible!" << std::endl;
         }
     }
 }
 
-void LoopAnalizer::BuildLoopTree()
+void LoopAnalyzer::BuildLoopTree()
 {
     for (auto *block : graph_->GetRpoVector()) {
         auto *blockLoop = block->GetLoop();
@@ -102,28 +101,24 @@ void LoopAnalizer::BuildLoopTree()
     }
 }
 
-void LoopAnalizer::ProcessReducibleLoopHeader(Loop *loop, BasicBlock *header)
+void LoopAnalyzer::ProcessReducibleLoopHeader(Loop *loop, BasicBlock *header)
 {
     blackMrk_ = graph_->CreateNewMarker();
 
     header->SetMarker(blackMrk_);
     for (auto *latch : loop->GetLatches()) {
-        std::cerr << "latch = " << latch << " name = " << static_cast<char>(latch->GetId() + 'A') << std::endl;
         LoopSearchDFS(loop, latch);
     }
 
     graph_->EraseMarker(blackMrk_);
 }
 
-void LoopAnalizer::LoopSearchDFS(Loop *loop, BasicBlock *block)
+void LoopAnalyzer::LoopSearchDFS(Loop *loop, BasicBlock *block)
 {
     assert(loop);
     assert(block);
 
-    std::cerr << "LoopSearchDFS" << std::endl;
-
     if (block->IsMarked(blackMrk_)) {
-        std::cerr << "return from LoopSearchDFS" << std::endl;
         return;
     }
     block->SetMarker(blackMrk_);
@@ -137,24 +132,20 @@ void LoopAnalizer::LoopSearchDFS(Loop *loop, BasicBlock *block)
         if (blockLoop->GetOuterLoop() == nullptr) {
             blockLoop->SetOuterLoop(loop);
             loop->AddInnerLoop(blockLoop);
-            std::cerr << ">>>Add Inner loop" << std::endl;
-            std::cerr << "block is = "
-                      << " name = " << static_cast<char>(block->GetId() + 'A') << std::endl;
         }
     }
 
     for (auto *predecessor : block->GetPredecessors()) {
-        std::cerr << "pred = " << predecessor << " name = " << static_cast<char>(predecessor->GetId() + 'A')
-                  << std::endl;
         LoopSearchDFS(loop, predecessor);
     }
 }
 
-void LoopAnalizer::ProcessIrreducibleLoopHeader(Loop *loop)
+void LoopAnalyzer::ProcessIrreducibleLoopHeader(Loop *loop)
 {
     for (auto latch : loop->GetLatches()) {
-        if (latch->GetLoop() != nullptr) {
+        if (latch->GetLoop() != loop) {
             loop->PushBlock(latch);
+            latch->SetLoop(loop);
         }
     }
 }

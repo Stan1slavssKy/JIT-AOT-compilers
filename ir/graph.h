@@ -10,7 +10,7 @@
 #include "ir/instruction.h"
 #include "ir/marker.h"
 
-#include "analisys/loop.h"
+#include "analysis/loop.h"
 
 namespace compiler {
 

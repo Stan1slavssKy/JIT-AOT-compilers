@@ -21,10 +21,10 @@ set(SOURCES
     ir/ir_builder.cpp
     ir/basic_block.cpp
     ir/dump_instructions.cpp
-    analisys/rpo.cpp
-    analisys/dfs.cpp
-    analisys/dominator_tree.cpp
-    analisys/loop_analizer.cpp
+    analysis/rpo.cpp
+    analysis/dfs.cpp
+    analysis/dominator_tree.cpp
+    analysis/loop_analyzer.cpp
 )
 
 add_library(compiler_static STATIC ${SOURCES})

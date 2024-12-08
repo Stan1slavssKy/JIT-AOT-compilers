@@ -1,5 +1,5 @@
-#ifndef ANALISYS_LOOP_H
-#define ANALISYS_LOOP_H
+#ifndef ANALYSIS_LOOP_H
+#define ANALYSIS_LOOP_H
 
 #include <vector>
 
@@ -85,4 +85,4 @@ private:
 
 }  // namespace compiler
 
-#endif  // ANALISYS_LOOP_H
+#endif  // ANALYSIS_LOOP_H

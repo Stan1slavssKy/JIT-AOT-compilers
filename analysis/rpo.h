@@ -1,5 +1,5 @@
-#ifndef ANALISYS_DFS_H
-#define ANALISYS_DFS_H
+#ifndef ANALYSIS_DFS_H
+#define ANALYSIS_DFS_H
 
 #include "utils/macros.h"
 #include "ir/basic_block.h"
@@ -11,12 +11,12 @@ namespace compiler {
 
 class Graph;
 
-class DFS final {
+class RPO final {
 public:
-    NO_COPY_SEMANTIC(DFS);
-    NO_MOVE_SEMANTIC(DFS);
+    NO_COPY_SEMANTIC(RPO);
+    NO_MOVE_SEMANTIC(RPO);
 
-    DFS(Graph *graph) : graph_(graph) {}
+    RPO(Graph *graph) : graph_(graph) {}
 
     std::vector<BasicBlock *> Run();
 
@@ -25,8 +25,13 @@ public:
         marker_ = marker;
     }
 
+    Marker GetMarker() const
+    {
+        return marker_;
+    }
+
 private:
-    void DFSImpl(std::vector<BasicBlock *> &dfsVector, BasicBlock *block);
+    void DFS(std::vector<BasicBlock *> &rpoVector, BasicBlock *block, size_t *blockCount);
 
 private:
     Graph *graph_ {nullptr};
@@ -36,4 +41,4 @@ private:
 
 }  // namespace compiler
 
-#endif  // ANALISYS_DFS_H
+#endif  // ANALYSIS_DFS_H

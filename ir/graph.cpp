@@ -1,6 +1,6 @@
 #include "ir/graph.h"
-#include "analisys/rpo.h"
-#include "analisys/dominator_tree.h"
+#include "analysis/rpo.h"
+#include "analysis/dominator_tree.h"
 
 namespace compiler {
 
