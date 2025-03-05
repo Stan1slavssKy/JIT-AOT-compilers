@@ -64,6 +64,16 @@ public:
         prevInsn->SetNext(insn);
     }
 
+    Instruction *GetFirstInsn()
+    {
+        return firstInsn_;
+    }
+
+    const Instruction *GetFirstInsn() const
+    {
+        return firstInsn_;
+    }
+
     void SetId(BasicBlockId id)
     {
         bbId_ = id;

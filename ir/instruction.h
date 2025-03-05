@@ -97,6 +97,11 @@ public:
         return (opcode_ == Opcode::BEQ) || (opcode_ == Opcode::BNE) || (opcode_ == Opcode::BGT);
     }
 
+    Opcode GetOpcode() const
+    {
+        return opcode_;
+    }
+
     void SetResultType(DataType type)
     {
         resultType_ = type;

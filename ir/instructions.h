@@ -193,6 +193,30 @@ public:
     }
 };
 
+class AshrInsn final : public ArithmeticInsn {
+public:
+    AshrInsn(DataType resultType, Instruction *input1, Instruction *input2)
+        : ArithmeticInsn(Opcode::ASHR, resultType, input1, input2)
+    {
+    }
+};
+
+class ShrInsn final : public ArithmeticInsn {
+public:
+    ShrInsn(DataType resultType, Instruction *input1, Instruction *input2)
+        : ArithmeticInsn(Opcode::SHR, resultType, input1, input2)
+    {
+    }
+};
+
+class ShlInsn final : public ArithmeticInsn {
+public:
+    ShlInsn(DataType resultType, Instruction *input1, Instruction *input2)
+        : ArithmeticInsn(Opcode::SHL, resultType, input1, input2)
+    {
+    }
+};
+
 class JmpInsn final : public Instruction {
 public:
     JmpInsn(BasicBlock *bbToJmp) : Instruction(Opcode::JMP, DataType::VOID), bbToJmp_(bbToJmp) {}
