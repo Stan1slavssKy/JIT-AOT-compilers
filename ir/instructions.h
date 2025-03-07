@@ -120,16 +120,11 @@ public:
 
     bool IsEqual(int64_t value) const
     {
-        if (type_ != DataType::I64) {
+        if (type_ != DataType::I64 && type_ != DataType::U64) {
             return false;
         }
 
         int64_t rhsValue = GetAsSignedInt();
-
-        if (std::isnan(value) && std::isnan(rhsValue)) {
-            return true;
-        }
-
         return value == rhsValue;
     }
 
@@ -175,6 +170,9 @@ public:
         SetInput(input1, 0);
         SetInput(input2, 1);
         input1->AddUser(this);
+        if (input1 == input2) {
+            return;
+        }
         input2->AddUser(this);
     }
 

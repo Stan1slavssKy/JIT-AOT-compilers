@@ -9,7 +9,7 @@
 
 namespace compiler {
 
-std::string DataTypeToStr(DataType type)
+inline std::string DataTypeToStr(DataType type)
 {
     switch (type) {
         case DataType::UNDEFINED:
@@ -43,7 +43,7 @@ std::string DataTypeToStr(DataType type)
     }
 }
 
-std::string OpcodeToString(Opcode opcode)
+inline std::string OpcodeToString(Opcode opcode)
 {
     (void)opcode;
 #define _(insn)        \

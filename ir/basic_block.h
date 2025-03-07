@@ -27,7 +27,7 @@ public:
 
     void PushInstruction(Instruction *insn)
     {
-        if (lastInsn_ == nullptr) {
+        if (firstInsn_ == nullptr) {
             firstInsn_ = insn;
             lastInsn_ = firstInsn_;
         } else {

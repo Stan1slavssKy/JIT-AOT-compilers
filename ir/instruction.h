@@ -6,7 +6,7 @@
 #include "utils/macros.h"
 
 #include <array>
-#include <vector>
+#include <list>
 #include <sstream>
 
 namespace compiler {
@@ -60,9 +60,19 @@ public:
         users_.push_back(user);
     }
 
-    const std::vector<Instruction *> &GetUsers()
+    std::list<Instruction *> &GetUsers()
     {
         return users_;
+    }
+
+    const std::list<Instruction *> &GetUsers() const
+    {
+        return users_;
+    }
+
+    std::list<Instruction *>::iterator RemoveUser(std::list<Instruction *>::iterator userIt)
+    {
+        return users_.erase(userIt);
     }
 
     void SetInput(Instruction *input, size_t idx)
@@ -144,7 +154,7 @@ private:
     DataType resultType_;
 
     std::array<Instruction *, 2U> inputs_ {};
-    std::vector<Instruction *> users_;
+    std::list<Instruction *> users_;
 };
 
 }  // namespace compiler

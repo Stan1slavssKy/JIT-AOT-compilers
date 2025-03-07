@@ -12,24 +12,21 @@ void Peepholes::Run()
     auto &blocks = graph_->GetRpoVector();
     for (auto *b : blocks) {
         Instruction *currInsn = b->GetFirstInsn();
-        Instruction *nextInsn = currInsn->GetNext();
-        Instruction *tempInsn = nullptr;
+        Instruction *nextInsn = nullptr;
 
-        while (nextInsn != nullptr) {
+        while (currInsn != nullptr) {
+            nextInsn = currInsn->GetNext();
+
             auto visitMethod = opcodeToVisitTable_[static_cast<size_t>(currInsn->GetOpcode())];
             (this->*visitMethod)(currInsn);
 
-            tempInsn = currInsn;
             currInsn = nextInsn;
-            nextInsn = tempInsn->GetNext();
         }
     }
 }
 
-void Peepholes::VisitMUL([[maybe_unused]] Instruction *insn)
+void Peepholes::VisitMUL(Instruction *insn)
 {
-    std::cout << "Im here VisitMUL" << std::endl;
-
     if (insn->GetInput(0)->IsConst()) {
         insn->SwapInputs();
     }
@@ -52,14 +49,24 @@ void Peepholes::VisitMUL([[maybe_unused]] Instruction *insn)
         // ...
         // 3.u64 mul v2, v0
         // 4.u64 add v2, v0
-        for (auto *user : insn->GetUsers()) {
+        auto &currInsnUsers = insn->GetUsers();
+        auto userIt = currInsnUsers.begin();
+        while (userIt != currInsnUsers.end()) {
+            auto *user = *userIt;
+            bool needRemoveUser = false;
+
             if (user->GetInput(0) == insn) {
                 user->SetInput(input0, 0);
-                // TODO remove user (need linked list....)
+                needRemoveUser = true;
             }
             if (user->GetInput(1) == insn) {
-                user->SetInput(input0, 0);
-                // TODO remove user
+                user->SetInput(input0, 1);
+                needRemoveUser = true;
+            }
+            if (needRemoveUser) {
+                userIt = insn->RemoveUser(userIt);
+            } else {
+                ++userIt;
             }
         }
     }
