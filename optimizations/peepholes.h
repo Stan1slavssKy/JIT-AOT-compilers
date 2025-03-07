@@ -16,14 +16,14 @@ public:
 
     void Run();
 
-#define _(instrType) void Visit##instrType();
+#define _(instrType) void Visit##instrType(Instruction *insn);
 #include "ir/instruction_type.def"
 #undef _
 
 private:
     Graph *graph_ {nullptr};
 
-    using VisitMethodType = void (compiler::Peepholes::*)();
+    using VisitMethodType = void (compiler::Peepholes::*)(Instruction *insn);
 
 #define _(instrType) &Peepholes::Visit##instrType,
     std::array<VisitMethodType, 23U> opcodeToVisitTable_ {

@@ -5,6 +5,7 @@
 #include "ir/opcodes.h"
 #include "utils/macros.h"
 
+#include <array>
 #include <vector>
 #include <sstream>
 
@@ -12,14 +13,6 @@ namespace compiler {
 
 class Instruction;
 class BasicBlock;
-
-struct Input {
-    Instruction *input {nullptr};
-};
-
-struct User {
-    Instruction *user {nullptr};
-};
 
 using InstructionId = size_t;
 
@@ -62,24 +55,40 @@ public:
         return prev_;
     }
 
-    void AddInput(Instruction *input)
-    {
-        inputs_.push_back(Input {input});
-    }
-
     void AddUser(Instruction *user)
     {
-        users_.push_back(User {user});
+        users_.push_back(user);
     }
 
-    void SetInputs(std::vector<Input> inputs)
+    const std::vector<Instruction *> &GetUsers()
     {
-        inputs_ = std::move(inputs);
+        return users_;
     }
 
-    const std::vector<Input> &GetInputs() const
+    void SetInput(Instruction *input, size_t idx)
     {
-        return inputs_;
+        assert(input != nullptr);
+        assert(idx < inputs_.size());
+        inputs_[idx] = input;
+    }
+
+    Instruction *GetInput(size_t idx)
+    {
+        assert(idx < inputs_.size());
+        return inputs_[idx];
+    }
+
+    const Instruction *GetInput(size_t idx) const
+    {
+        assert(idx < inputs_.size());
+        return inputs_[idx];
+    }
+
+    void SwapInputs()
+    {
+        auto *temp = inputs_[0];
+        inputs_[0] = inputs_[1];
+        inputs_[1] = temp;
     }
 
     bool IsPhi() const
@@ -95,6 +104,11 @@ public:
     bool IsBranch() const
     {
         return (opcode_ == Opcode::BEQ) || (opcode_ == Opcode::BNE) || (opcode_ == Opcode::BGT);
+    }
+
+    bool IsConst() const
+    {
+        return opcode_ == Opcode::CONSTANT;
     }
 
     Opcode GetOpcode() const
@@ -129,8 +143,8 @@ private:
     Opcode opcode_ {Opcode::UNDEFINED};
     DataType resultType_;
 
-    std::vector<Input> inputs_;
-    std::vector<User> users_;
+    std::array<Instruction *, 2U> inputs_ {};
+    std::vector<Instruction *> users_;
 };
 
 }  // namespace compiler
