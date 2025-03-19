@@ -101,6 +101,27 @@ public:
         inputs_[1] = temp;
     }
 
+    void ReplaceInput(Instruction *inputToReplace, Instruction *insnToReplaceWith)
+    {
+        if (inputs_[0] == inputToReplace) {
+            inputs_[0] = insnToReplaceWith;
+            insnToReplaceWith->AddUser(this);
+        }
+        if (inputs_[1] == inputToReplace) {
+            inputs_[1] = insnToReplaceWith;
+            if (inputs_[0] != inputs_[1]) {
+                insnToReplaceWith->AddUser(this);
+            }
+        }
+    }
+
+    void ReplaceInputsForUsers(Instruction *insnToReplaceWith)
+    {
+        for (auto *it : users_) {
+            it->ReplaceInput(this, insnToReplaceWith);
+        }
+    }
+
     bool IsPhi() const
     {
         return opcode_ == Opcode::PHI;

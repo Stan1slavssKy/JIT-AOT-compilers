@@ -9,6 +9,11 @@
 
 namespace compiler {
 
+class UndefinedInsn final : public Instruction {
+public:
+    UndefinedInsn() : Instruction(Opcode::UNDEFINED) {}
+};
+
 class ParameterInsn final : public Instruction {
 public:
     ParameterInsn(uint32_t argNum) : Instruction(Opcode::PARAMETER, DataType::U32), argNum_(argNum) {}

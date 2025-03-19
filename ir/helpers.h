@@ -46,8 +46,8 @@ inline std::string DataTypeToStr(DataType type)
 inline std::string OpcodeToString(Opcode opcode)
 {
     (void)opcode;
-#define _(insn)        \
-    case Opcode::insn: \
+#define OPCODE_MACROS(insn, _) \
+    case Opcode::insn:         \
         return #insn;
 
     switch (opcode) {
@@ -57,7 +57,7 @@ inline std::string OpcodeToString(Opcode opcode)
             UNREACHABLE();
     }
 
-#undef _
+#undef OPCODE_MACROS
 }
 
 }  // namespace compiler

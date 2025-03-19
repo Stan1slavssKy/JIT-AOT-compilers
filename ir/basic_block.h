@@ -64,6 +64,29 @@ public:
         prevInsn->SetNext(insn);
     }
 
+    void Remove(Instruction *insnToRemove)
+    {
+        assert(insnToRemove != nullptr);
+
+        if (insnToRemove == firstInsn_) {
+            firstInsn_ = insnToRemove->GetNext();
+            firstInsn_->SetPrev(nullptr);
+            return;
+        }
+
+        if (insnToRemove == lastInsn_) {
+            lastInsn_ = insnToRemove->GetPrev();
+            lastInsn_->SetNext(nullptr);
+            return;
+        }
+
+        auto *prevInsn = insnToRemove->GetPrev();
+        auto *nextInsn = insnToRemove->GetNext();
+
+        prevInsn->SetNext(nextInsn);
+        nextInsn->SetPrev(prevInsn);
+    }
+
     Instruction *GetFirstInsn()
     {
         return firstInsn_;

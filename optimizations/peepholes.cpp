@@ -25,7 +25,7 @@ void Peepholes::Run()
     }
 }
 
-void Peepholes::VisitMUL(Instruction *insn)
+void Peepholes::VisitMul(Instruction *insn)
 {
     if (insn->GetInput(0)->IsConst()) {
         insn->SwapInputs();
@@ -69,38 +69,54 @@ void Peepholes::VisitMUL(Instruction *insn)
                 ++userIt;
             }
         }
+    } else if (constInput1->IsEqualTo(2)) {
+        // 0.u64 Constant 2
+        // 1. ...
+        // 2.f64 mul v1, v0
+        // 3.f64 sub v2, v0
+        // ==>
+        // 0.u64 Constant 2
+        // 1. ...
+        // 4.f64 add v1, v1
+        // 3.f64 sub v4, v0
+
+        auto *newAddInsn = graph_->CreateInsn<AddInsn>(DataType::F64, input0, input0);
+        insn->ReplaceInputsForUsers(newAddInsn);
+
+        auto *prevInsn = insn->GetPrev();
+        auto *currBb = insn->GetParentBB();
+
+        currBb->InsertInstruction(prevInsn, newAddInsn);
+        currBb->Remove(insn);  // May be it is better to not remove insn and do dead code elimination as the last pass.
     }
 }
 
-void Peepholes::VisitASHR([[maybe_unused]] Instruction *insn)
+void Peepholes::VisitAshr([[maybe_unused]] Instruction *insn)
 {
-    std::cout << "Im here VisitASHR" << std::endl;
+    std::cout << "Im here VisitAshr" << std::endl;
 }
 
-void Peepholes::VisitOR([[maybe_unused]] Instruction *insn)
+void Peepholes::VisitOr([[maybe_unused]] Instruction *insn)
 {
-    std::cout << "Im here VisitOR" << std::endl;
+    std::cout << "Im here VisitOr" << std::endl;
 }
 
-void Peepholes::VisitUNDEFINED([[maybe_unused]] Instruction *insn) {}
-void Peepholes::VisitADD([[maybe_unused]] Instruction *insn) {}
-void Peepholes::VisitSUB([[maybe_unused]] Instruction *insn) {}
-void Peepholes::VisitDIV([[maybe_unused]] Instruction *insn) {}
-void Peepholes::VisitREM([[maybe_unused]] Instruction *insn) {}
-void Peepholes::VisitAND([[maybe_unused]] Instruction *insn) {}
-void Peepholes::VisitXOR([[maybe_unused]] Instruction *insn) {}
-void Peepholes::VisitSHR([[maybe_unused]] Instruction *insn) {}
-void Peepholes::VisitSHL([[maybe_unused]] Instruction *insn) {}
-void Peepholes::VisitLOAD([[maybe_unused]] Instruction *insn) {}
-void Peepholes::VisitSTORE([[maybe_unused]] Instruction *insn) {}
-void Peepholes::VisitJMP([[maybe_unused]] Instruction *insn) {}
-void Peepholes::VisitBEQ([[maybe_unused]] Instruction *insn) {}
-void Peepholes::VisitBNE([[maybe_unused]] Instruction *insn) {}
-void Peepholes::VisitBGT([[maybe_unused]] Instruction *insn) {}
-void Peepholes::VisitCALL([[maybe_unused]] Instruction *insn) {}
-void Peepholes::VisitRET([[maybe_unused]] Instruction *insn) {}
-void Peepholes::VisitPHI([[maybe_unused]] Instruction *insn) {}
-void Peepholes::VisitPARAMETER([[maybe_unused]] Instruction *insn) {}
-void Peepholes::VisitCONSTANT([[maybe_unused]] Instruction *insn) {}
+void Peepholes::VisitUndefined([[maybe_unused]] Instruction *insn) {}
+void Peepholes::VisitAdd([[maybe_unused]] Instruction *insn) {}
+void Peepholes::VisitSub([[maybe_unused]] Instruction *insn) {}
+void Peepholes::VisitDiv([[maybe_unused]] Instruction *insn) {}
+void Peepholes::VisitRem([[maybe_unused]] Instruction *insn) {}
+void Peepholes::VisitAnd([[maybe_unused]] Instruction *insn) {}
+void Peepholes::VisitXor([[maybe_unused]] Instruction *insn) {}
+void Peepholes::VisitShr([[maybe_unused]] Instruction *insn) {}
+void Peepholes::VisitShl([[maybe_unused]] Instruction *insn) {}
+void Peepholes::VisitJmp([[maybe_unused]] Instruction *insn) {}
+void Peepholes::VisitBeq([[maybe_unused]] Instruction *insn) {}
+void Peepholes::VisitBne([[maybe_unused]] Instruction *insn) {}
+void Peepholes::VisitBgt([[maybe_unused]] Instruction *insn) {}
+void Peepholes::VisitRet([[maybe_unused]] Instruction *insn) {}
+void Peepholes::VisitPhi([[maybe_unused]] Instruction *insn) {}
+void Peepholes::VisitParameter([[maybe_unused]] Instruction *insn) {}
+void Peepholes::VisitConstant([[maybe_unused]] Instruction *insn) {}
 
 }  // namespace compiler

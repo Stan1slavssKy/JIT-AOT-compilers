@@ -16,20 +16,20 @@ public:
 
     void Run();
 
-#define _(instrType) void Visit##instrType(Instruction *insn);
+#define OPCODE_MACROS(_, instrType) void Visit##instrType(Instruction *insn);
 #include "ir/instruction_type.def"
-#undef _
+#undef OPCODE_MACROS
 
 private:
     Graph *graph_ {nullptr};
 
     using VisitMethodType = void (compiler::Peepholes::*)(Instruction *insn);
 
-#define _(instrType) &Peepholes::Visit##instrType,
+#define OPCODE_MACROS(_, instrType) &Peepholes::Visit##instrType,
     std::array<VisitMethodType, 23U> opcodeToVisitTable_ {
 #include "ir/instruction_type.def"
     };
-#undef _
+#undef OPCODE_MACROS
 };
 
 }  // namespace compiler
