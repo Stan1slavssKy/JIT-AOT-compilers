@@ -25,6 +25,7 @@ set(SOURCES
     analysis/dfs.cpp
     analysis/dominator_tree.cpp
     analysis/loop_analyzer.cpp
+    optimizations/peepholes.cpp
 )
 
 add_library(compiler_static STATIC ${SOURCES})

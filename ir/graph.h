@@ -8,6 +8,7 @@
 
 #include "ir/basic_block.h"
 #include "ir/instruction.h"
+#include "ir/instructions.h"
 #include "ir/marker.h"
 
 #include "analysis/loop.h"
@@ -47,6 +48,16 @@ public:
     void EraseMarker(Marker marker);
 
     Loop *CreateNewLoop(BasicBlock *header);
+
+    template <typename InsnT, typename... Args>
+    Instruction *CreateInsn(Args &&...args)
+    {
+        auto insn = std::make_unique<InsnT>(std::forward<Args>(args)...);
+
+        auto *insnPtr = insn.get();
+        AddInstruction(std::move(insn));
+        return insnPtr;
+    }
 
 private:
     // Graph owns all basic blocks and instruction of the current function.

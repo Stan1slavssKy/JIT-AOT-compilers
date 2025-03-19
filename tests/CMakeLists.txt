@@ -6,6 +6,7 @@ target_link_libraries(unit_tests PUBLIC
     unit_test_main
     ir_builder_test_obj
     analysis_tests_obj
+    peepholes_test_obj
 )
 
 add_custom_target(run_unit_tests
@@ -16,3 +17,4 @@ add_dependencies(run_unit_tests unit_tests)
 
 add_subdirectory(ir_builder)
 add_subdirectory(analysis)
+add_subdirectory(optimizations)
