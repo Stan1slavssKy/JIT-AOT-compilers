@@ -51,17 +51,15 @@ inline Instruction *IrBuilder::CreateParameterInsn(uint32_t parameter)
 template <typename T>
 inline Instruction *IrBuilder::CreateConstantInsn(T constant, DataType resultType)
 {
-    auto insn = CreateInstruction<ConstantInsn>(constant);
-    insn->SetResultType(resultType);
-    return insn;
+    return CreateInstruction<ConstantInsn>(constant, resultType);
 }
 
-inline Instruction *IrBuilder::CreateInt32ConstantInsn(uint32_t constant)
+inline Instruction *IrBuilder::CreateInt32ConstantInsn(int32_t constant)
 {
     return CreateConstantInsn(constant, DataType::I32);
 }
 
-inline Instruction *IrBuilder::CreateInt64ConstantInsn(uint64_t constant)
+inline Instruction *IrBuilder::CreateInt64ConstantInsn(int64_t constant)
 {
     return CreateConstantInsn(constant, DataType::I64);
 }

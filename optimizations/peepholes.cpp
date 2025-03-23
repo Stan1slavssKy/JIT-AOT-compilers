@@ -1,6 +1,7 @@
 #include "optimizations/peepholes.h"
 #include "analysis/dominator_tree.h"
 #include "ir/instructions.h"
+#include "ir/helpers.h"
 
 namespace compiler {
 
@@ -114,7 +115,7 @@ void Peepholes::VisitAshr(Instruction *insn)
         // 1.u64 Constant yyy
         // 2. ...
         // 3. ashr v2, v0
-        // 4. ashr v4, v1
+        // 4. ashr v3, v1
         // ==>
         // 0.u64 Constant xxx
         // 1.u64 Constant yyy
@@ -127,10 +128,18 @@ void Peepholes::VisitAshr(Instruction *insn)
             auto *input1FromPrevInsnAsConst = static_cast<ConstantInsn *>(input0->GetInput(1));
 
             if (input1FromPrevInsnAsConst->GetType() == input1AsConst->GetType()) {
-                auto newConstValue = input1AsConst->GetAsSignedInt() + input1FromPrevInsnAsConst->GetAsSignedInt();
-                auto *newConstInsn = graph_->CreateInsn<ConstantInsn>(newConstValue);
+                auto newConstType = input1AsConst->GetType();
+                auto newConstValue = input1AsConst->GetAsSignedInt();
+                newConstValue += input1FromPrevInsnAsConst->GetAsSignedInt();
+                auto *newConstInsn = graph_->CreateInsn<ConstantInsn>(newConstValue, newConstType);
+                assert(newConstInsn->GetType() == input1AsConst->GetType());
+
+                insn->GetParentBB()->InsertInstruction(insn, newConstInsn);
 
                 input0->RemoveUser(insn);
+                input0FromPrevInsn->AddUser(insn);
+                newConstInsn->AddUser(insn);
+
                 insn->SetInput(input0FromPrevInsn, 0);
                 insn->SetInput(newConstInsn, 1);
                 return;

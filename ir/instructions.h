@@ -33,7 +33,7 @@ private:
 class ConstantInsn final : public Instruction {
 public:
     template <typename T>
-    ConstantInsn(T value) : Instruction(Opcode::CONSTANT)
+    ConstantInsn(T value, DataType resultType) : Instruction(Opcode::CONSTANT)
     {
         if constexpr (std::is_integral_v<T>) {
             value_ = value;
@@ -51,6 +51,8 @@ public:
         } else {
             UNREACHABLE();
         }
+        assert(resultType == type_);
+        SetResultType(resultType);
     }
 
     bool IsSignedInt() const

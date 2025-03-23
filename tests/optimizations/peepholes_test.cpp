@@ -294,16 +294,14 @@ TEST(Peepholes, ASHR_WITH_ZERO)
     builder.SetBasicBlockScope(entryBB);
 
     auto *v0 = builder.CreateInt64ConstantInsn(0);
-    auto *v1 = builder.CreateInt32ConstantInsn(120);
+    auto *v1 = builder.CreateInt64ConstantInsn(120);
     auto *v2 = builder.CreateAddInsn(DataType::I64, v0, v1);
     auto *v3 = builder.CreateAshrInsn(DataType::I64, v2, v0);
     auto *v4 = builder.CreateSubInsn(DataType::I64, v3, v1);
     auto *v5 = builder.CreateSubInsn(DataType::I64, v4, v3);
     auto *v6 = builder.CreateSubInsn(DataType::I64, v5, v3);
 
-    DumpGraph(graph);
     peepholes.Run();
-    DumpGraph(graph);
 
     ASSERT_EQ(v4->GetInput(0), v2);
     ASSERT_EQ(v4->GetInput(1), v1);
@@ -334,6 +332,67 @@ TEST(Peepholes, ASHR_WITH_ZERO)
 
     ASSERT_EQ(v6->GetInput(0), v5);
     ASSERT_EQ(v6->GetInput(1), v2);
+}
+
+TEST(Peepholes, SEVERAL_ASHR_WITH_CONST)
+{
+    Graph graph;
+    Peepholes peepholes(&graph);
+    IrBuilder builder(&graph);
+
+    /*
+        entryBB:
+            0.i64 Constant 12
+            1.i64 Constant 10
+            2.i64 Constant 0
+            3.i64 add v0, v2
+            4.i64 ashr v3, v0
+            5.i64 ashr v4, v1
+            ==>
+            0.i64 Constant 12
+            1.i64 Constant 10
+            2.i64 Constant 0
+            3.i64 add v0, v2
+            4.i64 ashr v3, v0
+            6.i64 Constant (v0 + v1)
+            5.i64 ashr v3, v6
+    */
+    auto *entryBB = builder.CreateBB();
+    builder.SetBasicBlockScope(entryBB);
+
+    auto *v0 = builder.CreateInt64ConstantInsn(12);
+    auto *v1 = builder.CreateInt64ConstantInsn(10);
+    auto *v2 = builder.CreateInt64ConstantInsn(0);
+
+    auto *v3 = builder.CreateAddInsn(DataType::I64, v0, v2);
+    auto *v4 = builder.CreateAshrInsn(DataType::I64, v3, v0);
+    auto *v5 = builder.CreateAshrInsn(DataType::I64, v4, v1);
+
+    DumpGraph(graph);
+    peepholes.Run();
+    DumpGraph(graph);
+
+    auto *v6 = entryBB->GetLastInsn();
+
+    ASSERT_EQ(v5->GetInput(0), v3);
+    ASSERT_EQ(v5->GetInput(1), v6);
+
+    ASSERT_EQ(v6->GetUsers().size(), 1);
+    ASSERT_EQ(v6->GetUsers().front(), v5);
+
+    auto &v3users = v3->GetUsers();
+    ASSERT_EQ(v3users.size(), 2);
+
+    std::array<Instruction *, 2U> expectedUsers = {v4, v5};
+    size_t idx = 0;
+    for (auto *it : v3users) {
+        ASSERT_EQ(it, expectedUsers[idx]);
+        ++idx;
+    }
+
+    ASSERT_EQ(static_cast<ConstantInsn *>(v6)->GetAsSignedInt(),
+              static_cast<ConstantInsn *>(v0)->GetAsSignedInt() + static_cast<ConstantInsn *>(v1)->GetAsSignedInt());
+    ASSERT_EQ(static_cast<ConstantInsn *>(v6)->GetAsSignedInt(), 22);
 }
 
 }  // namespace compiler::tests

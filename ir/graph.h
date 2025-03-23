@@ -50,7 +50,7 @@ public:
     Loop *CreateNewLoop(BasicBlock *header);
 
     template <typename InsnT, typename... Args>
-    Instruction *CreateInsn(Args &&...args)
+    InsnT *CreateInsn(Args &&...args)
     {
         auto insn = std::make_unique<InsnT>(std::forward<Args>(args)...);
 

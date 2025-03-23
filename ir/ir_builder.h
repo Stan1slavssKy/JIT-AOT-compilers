@@ -43,8 +43,8 @@ public:
 
     template <typename T>
     Instruction *CreateConstantInsn(T constant, DataType resultType);
-    Instruction *CreateInt32ConstantInsn(uint32_t constant);
-    Instruction *CreateInt64ConstantInsn(uint64_t constant);
+    Instruction *CreateInt32ConstantInsn(int32_t constant);
+    Instruction *CreateInt64ConstantInsn(int64_t constant);
     Instruction *CreateFloat32ConstantInsn(float constant);
     Instruction *CreateFloat64ConstantInsn(double constant);
 

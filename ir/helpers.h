@@ -43,6 +43,11 @@ inline std::string DataTypeToStr(DataType type)
     }
 }
 
+template <typename T>
+inline T CastToType(T, DataType)
+{
+}
+
 inline std::string OpcodeToString(Opcode opcode)
 {
     (void)opcode;
