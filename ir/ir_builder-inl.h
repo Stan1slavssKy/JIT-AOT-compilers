@@ -96,6 +96,31 @@ inline Instruction *IrBuilder::CreateDivInsn(DataType resultType, Instruction *i
     return CreateInstruction<DivInsn>(resultType, input1, input2);
 }
 
+inline Instruction *IrBuilder::CreateOrInsn(DataType resultType, Instruction *input1, Instruction *input2)
+{
+    return CreateInstruction<DivInsn>(resultType, input1, input2);
+}
+
+inline Instruction *IrBuilder::CreateXorInsn(DataType resultType, Instruction *input1, Instruction *input2)
+{
+    return CreateInstruction<XorInsn>(resultType, input1, input2);
+}
+
+inline Instruction *IrBuilder::CreateAshrInsn(DataType resultType, Instruction *input1, Instruction *input2)
+{
+    return CreateInstruction<AshrInsn>(resultType, input1, input2);
+}
+
+inline Instruction *IrBuilder::CreateShrInsn(DataType resultType, Instruction *input1, Instruction *input2)
+{
+    return CreateInstruction<ShrInsn>(resultType, input1, input2);
+}
+
+inline Instruction *IrBuilder::CreateShlInsn(DataType resultType, Instruction *input1, Instruction *input2)
+{
+    return CreateInstruction<ShlInsn>(resultType, input1, input2);
+}
+
 inline Instruction *IrBuilder::CreateRemInsn(DataType resultType, Instruction *input1, Instruction *input2)
 {
     return CreateInstruction<RemInsn>(resultType, input1, input2);

@@ -267,4 +267,73 @@ TEST(Peepholes, MUL_BY_TWO_MANY_USERS)
     ASSERT_EQ(v6->GetInput(1), v1);
 }
 
+TEST(Peepholes, ASHR_WITH_ZERO)
+{
+    Graph graph;
+    Peepholes peepholes(&graph);
+    IrBuilder builder(&graph);
+
+    /*
+        entryBB:
+            // 0.i64 Constant 0
+            // 1.i64 Constant 120
+            // 2.i64 add v0, v1
+            // 3.i64 ashr v2, v0
+            // 4.i64 sub v3, v1
+            // 5.i64 sub v4, v3
+            // 6.i64 sub v5, v3
+            // ==>
+            // 0.i64 Constant 0
+            // 1.i64 Constant 120
+            // 2.i64 add v0, v1
+            // 4.i64 sub v2, v1
+            // 5.i64 sub v4, v2
+            // 6.i64 sub v5, v2
+    */
+    auto *entryBB = builder.CreateBB();
+    builder.SetBasicBlockScope(entryBB);
+
+    auto *v0 = builder.CreateInt64ConstantInsn(0);
+    auto *v1 = builder.CreateInt32ConstantInsn(120);
+    auto *v2 = builder.CreateAddInsn(DataType::I64, v0, v1);
+    auto *v3 = builder.CreateAshrInsn(DataType::I64, v2, v0);
+    auto *v4 = builder.CreateSubInsn(DataType::I64, v3, v1);
+    auto *v5 = builder.CreateSubInsn(DataType::I64, v4, v3);
+    auto *v6 = builder.CreateSubInsn(DataType::I64, v5, v3);
+
+    DumpGraph(graph);
+    peepholes.Run();
+    DumpGraph(graph);
+
+    ASSERT_EQ(v4->GetInput(0), v2);
+    ASSERT_EQ(v4->GetInput(1), v1);
+
+    ASSERT_EQ(v5->GetInput(0), v4);
+    ASSERT_EQ(v5->GetInput(1), v2);
+
+    ASSERT_EQ(v6->GetInput(0), v5);
+    ASSERT_EQ(v6->GetInput(1), v2);
+
+    ASSERT_EQ(v3->GetUsers().size(), 0);
+
+    auto v2users = v2->GetUsers();
+    ASSERT_EQ(v2users.size(), 3);
+
+    std::array<Instruction *, 3U> expectedUsers = {v4, v5, v6};
+    size_t idx = 0;
+    for (auto *it : v2users) {
+        ASSERT_EQ(it, expectedUsers[idx]);
+        ++idx;
+    }
+
+    ASSERT_EQ(v4->GetInput(0), v2);
+    ASSERT_EQ(v4->GetInput(1), v1);
+
+    ASSERT_EQ(v5->GetInput(0), v4);
+    ASSERT_EQ(v5->GetInput(1), v2);
+
+    ASSERT_EQ(v6->GetInput(0), v5);
+    ASSERT_EQ(v6->GetInput(1), v2);
+}
+
 }  // namespace compiler::tests

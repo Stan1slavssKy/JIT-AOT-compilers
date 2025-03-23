@@ -138,6 +138,11 @@ public:
         return IsEqual(value) || IsEqual(static_cast<float>(value)) || IsEqual(static_cast<double>(value));
     }
 
+    DataType GetType() const
+    {
+        return type_;
+    }
+
     void Dump(std::stringstream &ss) const override;
 
 private:

@@ -71,20 +71,19 @@ public:
         if (insnToRemove == firstInsn_) {
             firstInsn_ = insnToRemove->GetNext();
             firstInsn_->SetPrev(nullptr);
-            return;
-        }
-
-        if (insnToRemove == lastInsn_) {
+        } else if (insnToRemove == lastInsn_) {
             lastInsn_ = insnToRemove->GetPrev();
             lastInsn_->SetNext(nullptr);
-            return;
+        } else {
+            auto *prevInsn = insnToRemove->GetPrev();
+            auto *nextInsn = insnToRemove->GetNext();
+
+            prevInsn->SetNext(nextInsn);
+            nextInsn->SetPrev(prevInsn);
         }
 
-        auto *prevInsn = insnToRemove->GetPrev();
-        auto *nextInsn = insnToRemove->GetNext();
-
-        prevInsn->SetNext(nextInsn);
-        nextInsn->SetPrev(prevInsn);
+        insnToRemove->GetInput(0)->RemoveUser(insnToRemove);
+        insnToRemove->GetInput(1)->RemoveUser(insnToRemove);
     }
 
     Instruction *GetFirstInsn()

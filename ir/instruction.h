@@ -8,7 +8,7 @@
 #include <array>
 #include <list>
 #include <sstream>
-
+#include <iostream>
 namespace compiler {
 
 class Instruction;
@@ -75,6 +75,14 @@ public:
         return users_.erase(userIt);
     }
 
+    void RemoveUser(Instruction *userToRemove)
+    {
+        auto it = std::find(users_.begin(), users_.end(), userToRemove);
+        if (it != users_.end()) {
+            users_.erase(it);
+        }
+    }
+
     void SetInput(Instruction *input, size_t idx)
     {
         assert(input != nullptr);
@@ -101,24 +109,36 @@ public:
         inputs_[1] = temp;
     }
 
-    void ReplaceInput(Instruction *inputToReplace, Instruction *insnToReplaceWith)
+    bool TryReplaceInput(Instruction *inputToReplace, Instruction *insnToReplaceWith, size_t idx)
     {
-        if (inputs_[0] == inputToReplace) {
-            inputs_[0] = insnToReplaceWith;
-            insnToReplaceWith->AddUser(this);
+        if (inputs_[idx] == inputToReplace) {
+            inputs_[idx] = insnToReplaceWith;
+            return true;
         }
-        if (inputs_[1] == inputToReplace) {
-            inputs_[1] = insnToReplaceWith;
-            if (inputs_[0] != inputs_[1]) {
-                insnToReplaceWith->AddUser(this);
-            }
-        }
+        return false;
     }
 
+    bool ReplaceInputs(Instruction *inputToReplace, Instruction *insnToReplaceWith)
+    {
+        bool succ0 = TryReplaceInput(inputToReplace, insnToReplaceWith, 0);
+        bool succ1 = TryReplaceInput(inputToReplace, insnToReplaceWith, 1);
+
+        return succ0 || succ1;
+    }
+
+    /// For all users of this insn change inputs from this insn to given.
     void ReplaceInputsForUsers(Instruction *insnToReplaceWith)
     {
-        for (auto *it : users_) {
-            it->ReplaceInput(this, insnToReplaceWith);
+        for (auto userIt = users_.begin(); userIt != users_.end();) {
+            // Need to save iterator, because of removing user from list below.
+            auto currUser = *(userIt++);
+            if (currUser->ReplaceInputs(this, insnToReplaceWith)) {
+                // Now we successfully replace input for current user,
+                // it means that `this` insn do not have this user, so we need to remove it.
+                this->RemoveUser(currUser);
+                // Current user is new user for insn by which we replace `this` insn.
+                insnToReplaceWith->AddUser(currUser);
+            }
         }
     }
 
