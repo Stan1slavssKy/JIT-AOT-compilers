@@ -5,7 +5,14 @@
 #include "ir/instruction.h"
 #include "utils/bit_utils.h"
 
+#include <cmath>
+
 namespace compiler {
+
+class UndefinedInsn final : public Instruction {
+public:
+    UndefinedInsn() : Instruction(Opcode::UNDEFINED) {}
+};
 
 class ParameterInsn final : public Instruction {
 public:
@@ -86,6 +93,56 @@ public:
         return value_;
     }
 
+    bool IsEqual(float value) const
+    {
+        if (type_ != DataType::F32) {
+            return false;
+        }
+
+        float rhsValue = GetAsF32();
+
+        if (std::isnan(value) && std::isnan(rhsValue)) {
+            return true;
+        }
+
+        return value == rhsValue;
+    }
+
+    bool IsEqual(double value) const
+    {
+        if (type_ != DataType::F64) {
+            return false;
+        }
+
+        double rhsValue = GetAsF64();
+
+        if (std::isnan(value) && std::isnan(rhsValue)) {
+            return true;
+        }
+
+        return value == rhsValue;
+    }
+
+    bool IsEqual(int64_t value) const
+    {
+        if (type_ != DataType::I64 && type_ != DataType::U64) {
+            return false;
+        }
+
+        int64_t rhsValue = GetAsSignedInt();
+        return value == rhsValue;
+    }
+
+    bool IsEqualTo(int64_t value) const
+    {
+        return IsEqual(value) || IsEqual(static_cast<float>(value)) || IsEqual(static_cast<double>(value));
+    }
+
+    DataType GetType() const
+    {
+        return type_;
+    }
+
     void Dump(std::stringstream &ss) const override;
 
 private:
@@ -120,9 +177,12 @@ public:
     ArithmeticInsn(Opcode opcode, DataType resultType, Instruction *input1, Instruction *input2)
         : Instruction(opcode, resultType)
     {
-        AddInput(input1);
-        AddInput(input2);
+        SetInput(input1, 0);
+        SetInput(input2, 1);
         input1->AddUser(this);
+        if (input1 == input2) {
+            return;
+        }
         input2->AddUser(this);
     }
 
@@ -193,6 +253,30 @@ public:
     }
 };
 
+class AshrInsn final : public ArithmeticInsn {
+public:
+    AshrInsn(DataType resultType, Instruction *input1, Instruction *input2)
+        : ArithmeticInsn(Opcode::ASHR, resultType, input1, input2)
+    {
+    }
+};
+
+class ShrInsn final : public ArithmeticInsn {
+public:
+    ShrInsn(DataType resultType, Instruction *input1, Instruction *input2)
+        : ArithmeticInsn(Opcode::SHR, resultType, input1, input2)
+    {
+    }
+};
+
+class ShlInsn final : public ArithmeticInsn {
+public:
+    ShlInsn(DataType resultType, Instruction *input1, Instruction *input2)
+        : ArithmeticInsn(Opcode::SHL, resultType, input1, input2)
+    {
+    }
+};
+
 class JmpInsn final : public Instruction {
 public:
     JmpInsn(BasicBlock *bbToJmp) : Instruction(Opcode::JMP, DataType::VOID), bbToJmp_(bbToJmp) {}
@@ -213,8 +297,8 @@ public:
     BranchInsn(Opcode opcode, Instruction *input1, Instruction *input2, BasicBlock *ifTrueBB, BasicBlock *ifFalseBB)
         : Instruction(opcode, DataType::VOID), ifTrueBB_(ifTrueBB), ifFalseBB_(ifFalseBB)
     {
-        AddInput(input1);
-        AddInput(input2);
+        SetInput(input1, 0);
+        SetInput(input2, 1);
         input1->AddUser(this);
         input2->AddUser(this);
     }
@@ -264,7 +348,7 @@ class RetInsn final : public Instruction {
 public:
     RetInsn(DataType retType, Instruction *input) : Instruction(Opcode::RET, retType), retValue_(input)
     {
-        AddInput(input);
+        SetInput(input, 0);
         input->AddUser(this);
     }
 

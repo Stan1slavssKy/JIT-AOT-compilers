@@ -54,6 +54,12 @@ public:
     Instruction *CreateDivInsn(DataType resultType, Instruction *input1, Instruction *input2);
     Instruction *CreateRemInsn(DataType resultType, Instruction *input1, Instruction *input2);
 
+    Instruction *CreateOrInsn(DataType resultType, Instruction *input1, Instruction *input2);
+    Instruction *CreateXorInsn(DataType resultType, Instruction *input1, Instruction *input2);
+    Instruction *CreateAshrInsn(DataType resultType, Instruction *input1, Instruction *input2);
+    Instruction *CreateShrInsn(DataType resultType, Instruction *input1, Instruction *input2);
+    Instruction *CreateShlInsn(DataType resultType, Instruction *input1, Instruction *input2);
+
     Instruction *CreateJmpInsn(BasicBlock *bbToJmp);
     Instruction *CreateBneInsn(Instruction *input1, Instruction *input2, BasicBlock *bb1, BasicBlock *bb2);
     Instruction *CreateBeqInsn(Instruction *input1, Instruction *input2, BasicBlock *bb1, BasicBlock *bb2);
