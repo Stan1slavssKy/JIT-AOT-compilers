@@ -28,6 +28,10 @@ void Peepholes::Run()
 
 void Peepholes::VisitMul(Instruction *insn)
 {
+    if (ConstantFoldingMul(insn)) {
+        return;
+    }
+
     if (insn->GetInput(0)->IsConst()) {
         insn->SwapInputs();
     }
@@ -78,15 +82,7 @@ void Peepholes::VisitMul(Instruction *insn)
             // 4.f64 add v1, v1
             // 3.f64 sub v4, v0
 
-            auto *newAddInsn = graph_->CreateInsn<AddInsn>(DataType::F64, input0, input0);
-            insn->ReplaceInputsForUsers(newAddInsn);
-
-            auto *prevInsn = insn->GetPrev();
-            auto *currBb = insn->GetParentBB();
-
-            currBb->InsertInstruction(prevInsn, newAddInsn);
-            // May be it is better to not remove insn and do dead code elimination as the last pass.
-            currBb->Remove(insn);
+            graph_->CreateNewInsnInsteadOfInsn<AddInsn>(insn, DataType::F64, input0, input0);
         }
     }
 }
@@ -98,7 +94,7 @@ void Peepholes::VisitAshr(Instruction *insn)
 
     if (input1->IsConst()) {
         auto *input1AsConst = static_cast<ConstantInsn *>(input1);
-        if (input1AsConst->GetAsUnsignedInt() == 0U) {
+        if (input1AsConst->GetAsU64() == 0U) {
             // 0.u64 Constant 0
             // 1.i64 ...
             // 2.i64 ashr v1, v0
@@ -120,7 +116,7 @@ void Peepholes::VisitAshr(Instruction *insn)
         // 0.u64 Constant xxx
         // 1.u64 Constant yyy
         // 2. ...
-        // 3. ashr v2, v0   <-- this insn will be deleted by dead code elimination if it has not more users
+        // 3. ashr v2, v0   <-- this insn will be deleted by dead code elimination if it has no more users
         // 5.u64 Constant zzz (xxx + yyy = v0 + v1)
         // 4. ashr v2, v5
         if (input0->GetOpcode() == Opcode::ASHR && input0->GetInput(1)->IsConst()) {
@@ -129,8 +125,8 @@ void Peepholes::VisitAshr(Instruction *insn)
 
             if (input1FromPrevInsnAsConst->GetType() == input1AsConst->GetType()) {
                 auto newConstType = input1AsConst->GetType();
-                auto newConstValue = input1AsConst->GetAsSignedInt();
-                newConstValue += input1FromPrevInsnAsConst->GetAsSignedInt();
+                auto newConstValue = input1AsConst->GetAsI64();
+                newConstValue += input1FromPrevInsnAsConst->GetAsI64();
                 auto *newConstInsn = graph_->CreateInsn<ConstantInsn>(newConstValue, newConstType);
                 assert(newConstInsn->GetType() == input1AsConst->GetType());
 
@@ -159,7 +155,7 @@ void Peepholes::VisitOr(Instruction *insn)
 
     if (input1->IsConst()) {
         auto *input1AsConst = static_cast<ConstantInsn *>(input1);
-        if (input1AsConst->GetAsUnsignedInt() == 0U) {
+        if (input1AsConst->GetAsU64() == 0U) {
             // 0.u64 Constant 0
             // 1. ...
             // 2.u64 or v1, v0

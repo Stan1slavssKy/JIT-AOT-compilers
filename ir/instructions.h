@@ -85,12 +85,12 @@ public:
         return utils::bit_cast<double, uint64_t>(value_);
     }
 
-    int64_t GetAsSignedInt() const
+    int64_t GetAsI64() const
     {
         return static_cast<int64_t>(value_);
     }
 
-    uint64_t GetAsUnsignedInt() const
+    uint64_t GetAsU64() const
     {
         return value_;
     }
@@ -131,7 +131,7 @@ public:
             return false;
         }
 
-        int64_t rhsValue = GetAsSignedInt();
+        int64_t rhsValue = GetAsI64();
         return value == rhsValue;
     }
 

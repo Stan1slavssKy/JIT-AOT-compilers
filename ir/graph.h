@@ -59,6 +59,20 @@ public:
         return insnPtr;
     }
 
+    template <typename InsnT, typename... Args>
+    InsnT *CreateNewInsnInsteadOfInsn(Instruction *insnToReplace, Args &&...args)
+    {
+        auto *newInsn = CreateInsn<InsnT>(std::forward<Args>(args)...);
+        insnToReplace->ReplaceInputsForUsers(newInsn);
+
+        auto *prevInsn = insnToReplace->GetPrev();
+        auto *currBb = insnToReplace->GetParentBB();
+        currBb->InsertInstruction(prevInsn, newInsn);
+        currBb->Remove(insnToReplace);
+
+        return newInsn;
+    }
+
 private:
     // Graph owns all basic blocks and instruction of the current function.
     std::vector<std::unique_ptr<BasicBlock>> basicBlocks_;

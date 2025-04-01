@@ -21,9 +21,9 @@ void ConstantInsn::Dump(std::stringstream &ss) const
 {
     Instruction::Dump(ss);
     if (IsSignedInt()) {
-        ss << GetAsSignedInt();
+        ss << GetAsI64();
     } else if (IsUnsignedInt()) {
-        ss << GetAsUnsignedInt();
+        ss << GetAsU64();
     } else if (IsF32()) {
         ss << GetAsF32();
     } else if (IsF64()) {
