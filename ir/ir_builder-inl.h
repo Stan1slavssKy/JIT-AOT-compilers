@@ -96,7 +96,7 @@ inline Instruction *IrBuilder::CreateDivInsn(DataType resultType, Instruction *i
 
 inline Instruction *IrBuilder::CreateOrInsn(DataType resultType, Instruction *input1, Instruction *input2)
 {
-    return CreateInstruction<DivInsn>(resultType, input1, input2);
+    return CreateInstruction<OrInsn>(resultType, input1, input2);
 }
 
 inline Instruction *IrBuilder::CreateXorInsn(DataType resultType, Instruction *input1, Instruction *input2)

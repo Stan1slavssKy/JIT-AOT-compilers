@@ -368,9 +368,7 @@ TEST(Peepholes, SEVERAL_ASHR_WITH_CONST)
     auto *v4 = builder.CreateAshrInsn(DataType::I64, v3, v0);
     auto *v5 = builder.CreateAshrInsn(DataType::I64, v4, v1);
 
-    DumpGraph(graph);
     peepholes.Run();
-    DumpGraph(graph);
 
     auto *v6 = entryBB->GetLastInsn();
 
@@ -393,6 +391,84 @@ TEST(Peepholes, SEVERAL_ASHR_WITH_CONST)
     ASSERT_EQ(static_cast<ConstantInsn *>(v6)->GetAsSignedInt(),
               static_cast<ConstantInsn *>(v0)->GetAsSignedInt() + static_cast<ConstantInsn *>(v1)->GetAsSignedInt());
     ASSERT_EQ(static_cast<ConstantInsn *>(v6)->GetAsSignedInt(), 22);
+}
+
+TEST(Peepholes, OR_WITH_ZERO)
+{
+    Graph graph;
+    Peepholes peepholes(&graph);
+    IrBuilder builder(&graph);
+
+    /*
+        entryBB:
+            // 0.i64 Constant 0
+            // 1.i64 Constant 42
+            // 2.i64 add v0, v1
+            // 3.i64 or v2, v0
+            // 4.i64 sub v3, v1
+            ==>
+            // 0.i64 Constant 0
+            // 1.i64 Constant 42
+            // 2.i64 add v0, v1
+            // 4.i64 sub v2, v1
+    */
+    auto *entryBB = builder.CreateBB();
+    builder.SetBasicBlockScope(entryBB);
+
+    auto *v0 = builder.CreateInt64ConstantInsn(0);
+    auto *v1 = builder.CreateInt64ConstantInsn(42);
+    auto *v2 = builder.CreateAddInsn(DataType::I64, v0, v1);
+    auto *v3 = builder.CreateOrInsn(DataType::I64, v2, v0);
+    auto *v4 = builder.CreateSubInsn(DataType::I64, v3, v1);
+
+    peepholes.Run();
+
+    ASSERT_EQ(v4->GetInput(0), v2);
+    ASSERT_EQ(v4->GetInput(1), v1);
+
+    ASSERT_TRUE(v3->GetUsers().empty());
+
+    ASSERT_EQ(v2->GetUsers().size(), 1);
+    ASSERT_EQ(v2->GetUsers().front(), v4);
+}
+
+TEST(Peepholes, OR_WITH_IDENTICAL_INPUTS)
+{
+    Graph graph;
+    Peepholes peepholes(&graph);
+    IrBuilder builder(&graph);
+
+    /*
+        entryBB:
+            // 0.i64 Constant 0
+            // 1.i64 Constant 42
+            // 2.i64 add v0, v1
+            // 3.i64 or v2, v2
+            // 4.i64 sub v3, v1
+            ==>
+            // 0.i64 Constant 0
+            // 1.i64 Constant 42
+            // 2.i64 add v0, v1
+            // 4.i64 sub v2, v1
+    */
+    auto *entryBB = builder.CreateBB();
+    builder.SetBasicBlockScope(entryBB);
+
+    auto *v0 = builder.CreateInt64ConstantInsn(0);
+    auto *v1 = builder.CreateInt64ConstantInsn(42);
+    auto *v2 = builder.CreateAddInsn(DataType::I64, v0, v1);
+    auto *v3 = builder.CreateOrInsn(DataType::I64, v2, v2);
+    auto *v4 = builder.CreateSubInsn(DataType::I64, v3, v1);
+
+    peepholes.Run();
+
+    ASSERT_EQ(v4->GetInput(0), v2);
+    ASSERT_EQ(v4->GetInput(1), v1);
+
+    ASSERT_TRUE(v3->GetUsers().empty());
+
+    ASSERT_EQ(v2->GetUsers().size(), 1);
+    ASSERT_EQ(v2->GetUsers().front(), v4);
 }
 
 }  // namespace compiler::tests
