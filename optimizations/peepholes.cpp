@@ -28,6 +28,10 @@ void Peepholes::Run()
 
 void Peepholes::VisitMul(Instruction *insn)
 {
+    if (ConstantFoldingMul(insn)) {
+        return;
+    }
+
     if (insn->GetInput(0)->IsConst()) {
         insn->SwapInputs();
     }

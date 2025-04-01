@@ -30,6 +30,10 @@ private:
 #include "ir/instruction_type.def"
     };
 #undef OPCODE_MACROS
+
+    bool ConstantFoldingMul(Instruction *insn);
+    bool ConstantFoldingOr(Instruction *insn);
+    bool ConstantFoldingAshr(Instruction *insn);
 };
 
 }  // namespace compiler

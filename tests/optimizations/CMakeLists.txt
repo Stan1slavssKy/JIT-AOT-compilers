@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 3.13)
 
 set(SOURCES
     peepholes_test.cpp
+    constant_folding_test.cpp
 )
 
 add_library(peepholes_test_obj OBJECT ${SOURCES})

@@ -172,6 +172,11 @@ public:
         resultType_ = type;
     }
 
+    DataType GetResultType() const
+    {
+        return resultType_;
+    }
+
     void SetId(InstructionId id)
     {
         insnId_ = id;

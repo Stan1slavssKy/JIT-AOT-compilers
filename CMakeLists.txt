@@ -26,6 +26,7 @@ set(SOURCES
     analysis/dominator_tree.cpp
     analysis/loop_analyzer.cpp
     optimizations/peepholes.cpp
+    optimizations/constant_folding.cpp
 )
 
 add_library(compiler_static STATIC ${SOURCES})
