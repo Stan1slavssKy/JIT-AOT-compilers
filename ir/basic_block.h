@@ -27,7 +27,7 @@ public:
 
     void PushInstruction(Instruction *insn)
     {
-        if (lastInsn_ == nullptr) {
+        if (firstInsn_ == nullptr) {
             firstInsn_ = insn;
             lastInsn_ = firstInsn_;
         } else {
@@ -62,6 +62,38 @@ public:
 
         insn->SetPrev(prevInsn);
         prevInsn->SetNext(insn);
+    }
+
+    void Remove(Instruction *insnToRemove)
+    {
+        assert(insnToRemove != nullptr);
+
+        if (insnToRemove == firstInsn_) {
+            firstInsn_ = insnToRemove->GetNext();
+            firstInsn_->SetPrev(nullptr);
+        } else if (insnToRemove == lastInsn_) {
+            lastInsn_ = insnToRemove->GetPrev();
+            lastInsn_->SetNext(nullptr);
+        } else {
+            auto *prevInsn = insnToRemove->GetPrev();
+            auto *nextInsn = insnToRemove->GetNext();
+
+            prevInsn->SetNext(nextInsn);
+            nextInsn->SetPrev(prevInsn);
+        }
+
+        insnToRemove->GetInput(0)->RemoveUser(insnToRemove);
+        insnToRemove->GetInput(1)->RemoveUser(insnToRemove);
+    }
+
+    Instruction *GetFirstInsn()
+    {
+        return firstInsn_;
+    }
+
+    const Instruction *GetFirstInsn() const
+    {
+        return firstInsn_;
     }
 
     void SetId(BasicBlockId id)

@@ -10,7 +10,7 @@ set(COMPILER_ROOT ${CMAKE_CURRENT_SOURCE_DIR})
 set(COMPILER_BINARY_ROOT ${CMAKE_CURRENT_BINARY_DIR})
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pedantic -Wall -Wextra -Werror -Wshadow -Wno-invalid-offsetof")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-rtti -fno-exceptions")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-exceptions")
 
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${COMPILER_BINARY_ROOT}/lib)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${COMPILER_BINARY_ROOT}/lib)
@@ -25,6 +25,8 @@ set(SOURCES
     analysis/dfs.cpp
     analysis/dominator_tree.cpp
     analysis/loop_analyzer.cpp
+    optimizations/peepholes.cpp
+    optimizations/constant_folding.cpp
 )
 
 add_library(compiler_static STATIC ${SOURCES})

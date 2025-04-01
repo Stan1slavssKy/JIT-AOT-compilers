@@ -6,9 +6,9 @@
 namespace compiler {
 
 enum Opcode : size_t {
-#define _(instr) instr,
+#define OPCODE_MACROS(instr, _) instr,
 #include "ir/instruction_type.def"
-#undef _
+#undef OPCODE_MACROS
 };
 
 }  // namespace compiler

@@ -9,7 +9,7 @@
 
 namespace compiler {
 
-std::string DataTypeToStr(DataType type)
+inline std::string DataTypeToStr(DataType type)
 {
     switch (type) {
         case DataType::UNDEFINED:
@@ -43,11 +43,16 @@ std::string DataTypeToStr(DataType type)
     }
 }
 
-std::string OpcodeToString(Opcode opcode)
+template <typename T>
+inline T CastToType(T, DataType)
+{
+}
+
+inline std::string OpcodeToString(Opcode opcode)
 {
     (void)opcode;
-#define _(insn)        \
-    case Opcode::insn: \
+#define OPCODE_MACROS(insn, _) \
+    case Opcode::insn:         \
         return #insn;
 
     switch (opcode) {
@@ -57,7 +62,7 @@ std::string OpcodeToString(Opcode opcode)
             UNREACHABLE();
     }
 
-#undef _
+#undef OPCODE_MACROS
 }
 
 }  // namespace compiler
