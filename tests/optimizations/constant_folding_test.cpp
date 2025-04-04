@@ -46,7 +46,7 @@ TEST(ConstantFolding, MUL_INT_CONST)
 
     auto *v5 = v1->GetNext();
     ASSERT_TRUE(v5->IsConst());
-    ASSERT_EQ(static_cast<ConstantInsn *>(v5)->GetAsU64(), 240U);
+    ASSERT_EQ(v5->AsConst()->GetAsU64(), 240U);
 
     ASSERT_TRUE(v4->GetUsers().empty());
 
@@ -89,7 +89,7 @@ TEST(ConstantFolding, MUL_FLOAT_CONST)
 
     auto *v5 = v1->GetNext();
     ASSERT_TRUE(v5->IsConst());
-    ASSERT_EQ(static_cast<ConstantInsn *>(v5)->GetAsF32(), CONST_1 * CONST_2);
+    ASSERT_EQ(v5->AsConst()->GetAsF32(), CONST_1 * CONST_2);
 
     ASSERT_TRUE(v4->GetUsers().empty());
 
@@ -132,7 +132,7 @@ TEST(ConstantFolding, MUL_DOUBLE_CONST)
 
     auto *v5 = v1->GetNext();
     ASSERT_TRUE(v5->IsConst());
-    ASSERT_EQ(static_cast<ConstantInsn *>(v5)->GetAsF64(), CONST_1 * CONST_2);
+    ASSERT_EQ(v5->AsConst()->GetAsF64(), CONST_1 * CONST_2);
 
     ASSERT_TRUE(v4->GetUsers().empty());
 

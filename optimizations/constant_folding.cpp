@@ -10,8 +10,8 @@ bool Peepholes::ConstantFoldingMul(Instruction *insn)
         return false;
     }
 
-    auto *input0 = static_cast<ConstantInsn *>(insn->GetInput(0));
-    auto *input1 = static_cast<ConstantInsn *>(insn->GetInput(1));
+    auto *input0 = insn->GetInput(0)->AsConst();
+    auto *input1 = insn->GetInput(1)->AsConst();
 
     switch (insn->GetResultType()) {
         case DataType::U64:

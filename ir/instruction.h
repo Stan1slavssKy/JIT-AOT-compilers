@@ -8,10 +8,10 @@
 #include <array>
 #include <list>
 #include <sstream>
-#include <iostream>
+
 namespace compiler {
 
-class Instruction;
+class ConstantInsn;
 class BasicBlock;
 
 using InstructionId = size_t;
@@ -109,38 +109,12 @@ public:
         inputs_[1] = temp;
     }
 
-    bool TryReplaceInput(Instruction *inputToReplace, Instruction *insnToReplaceWith, size_t idx)
-    {
-        if (inputs_[idx] == inputToReplace) {
-            inputs_[idx] = insnToReplaceWith;
-            return true;
-        }
-        return false;
-    }
+    bool TryReplaceInput(Instruction *inputToReplace, Instruction *insnToReplaceWith, size_t idx);
 
-    bool ReplaceInputs(Instruction *inputToReplace, Instruction *insnToReplaceWith)
-    {
-        bool succ0 = TryReplaceInput(inputToReplace, insnToReplaceWith, 0);
-        bool succ1 = TryReplaceInput(inputToReplace, insnToReplaceWith, 1);
-
-        return succ0 || succ1;
-    }
+    bool ReplaceInputs(Instruction *inputToReplace, Instruction *insnToReplaceWith);
 
     /// For all users of this insn change inputs from this insn to given.
-    void ReplaceInputsForUsers(Instruction *insnToReplaceWith)
-    {
-        for (auto userIt = users_.begin(); userIt != users_.end();) {
-            // Need to save iterator, because of removing user from list below.
-            auto currUser = *(userIt++);
-            if (currUser->ReplaceInputs(this, insnToReplaceWith)) {
-                // Now we successfully replace input for current user,
-                // it means that `this` insn do not have this user, so we need to remove it.
-                this->RemoveUser(currUser);
-                // Current user is new user for insn by which we replace `this` insn.
-                insnToReplaceWith->AddUser(currUser);
-            }
-        }
-    }
+    void ReplaceInputsForUsers(Instruction *insnToReplaceWith);
 
     bool IsPhi() const
     {
@@ -161,6 +135,10 @@ public:
     {
         return opcode_ == Opcode::CONSTANT;
     }
+
+    ConstantInsn *AsConst();
+
+    const ConstantInsn *AsConst() const;
 
     Opcode GetOpcode() const
     {

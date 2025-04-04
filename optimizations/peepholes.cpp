@@ -40,7 +40,7 @@ void Peepholes::VisitMul(Instruction *insn)
     auto *input1 = insn->GetInput(1);
 
     if (input1->IsConst()) {
-        auto *constInput1 = static_cast<ConstantInsn *>(input1);
+        auto *constInput1 = input1->AsConst();
         if (constInput1->IsEqualTo(1)) {
             // 0.u64 Constant 1
             // ...
@@ -93,7 +93,7 @@ void Peepholes::VisitAshr(Instruction *insn)
     auto *input1 = insn->GetInput(1);
 
     if (input1->IsConst()) {
-        auto *input1AsConst = static_cast<ConstantInsn *>(input1);
+        auto *input1AsConst = input1->AsConst();
         if (input1AsConst->GetAsU64() == 0U) {
             // 0.u64 Constant 0
             // 1.i64 ...
@@ -121,7 +121,7 @@ void Peepholes::VisitAshr(Instruction *insn)
         // 4. ashr v2, v5
         if (input0->GetOpcode() == Opcode::ASHR && input0->GetInput(1)->IsConst()) {
             auto *input0FromPrevInsn = input0->GetInput(0);
-            auto *input1FromPrevInsnAsConst = static_cast<ConstantInsn *>(input0->GetInput(1));
+            auto *input1FromPrevInsnAsConst = input0->GetInput(1)->AsConst();
 
             if (input1FromPrevInsnAsConst->GetType() == input1AsConst->GetType()) {
                 auto newConstType = input1AsConst->GetType();
@@ -154,7 +154,7 @@ void Peepholes::VisitOr(Instruction *insn)
     auto *input1 = insn->GetInput(1);
 
     if (input1->IsConst()) {
-        auto *input1AsConst = static_cast<ConstantInsn *>(input1);
+        auto *input1AsConst = input1->AsConst();
         if (input1AsConst->GetAsU64() == 0U) {
             // 0.u64 Constant 0
             // 1. ...

@@ -388,9 +388,8 @@ TEST(Peepholes, SEVERAL_ASHR_WITH_CONST)
         ++idx;
     }
 
-    ASSERT_EQ(static_cast<ConstantInsn *>(v6)->GetAsI64(),
-              static_cast<ConstantInsn *>(v0)->GetAsI64() + static_cast<ConstantInsn *>(v1)->GetAsI64());
-    ASSERT_EQ(static_cast<ConstantInsn *>(v6)->GetAsI64(), 22);
+    ASSERT_EQ(v6->AsConst()->GetAsI64(), v0->AsConst()->GetAsI64() + v1->AsConst()->GetAsI64());
+    ASSERT_EQ(v6->AsConst()->GetAsI64(), 22);
 }
 
 TEST(Peepholes, OR_WITH_ZERO)
