@@ -153,4 +153,176 @@ TEST(ConstantFolding, MUL_DOUBLE_CONST)
     }
 }
 
+TEST(ConstantFolding, ASHR_INT64_CONST)
+{
+    Graph graph;
+    Peepholes peepholes(&graph);
+    IrBuilder builder(&graph);
+
+    auto *entryBB = builder.CreateBB();
+    builder.SetBasicBlockScope(entryBB);
+
+    int64_t CONST_1 = -128;
+    int64_t CONST_2 = 2;
+
+    auto *v0 = builder.CreateInt64ConstantInsn(CONST_1);
+    auto *v1 = builder.CreateInt64ConstantInsn(CONST_2);
+    auto *v2 = builder.CreateAshrInsn(DataType::I64, v0, v1);
+    auto *v3 = builder.CreateAddInsn(DataType::I64, v2, v0);
+    auto *v4 = builder.CreateSubInsn(DataType::I64, v2, v1);
+
+    peepholes.Run();
+
+    auto *v5 = v1->GetNext();
+    ASSERT_TRUE(v5->IsConst());
+    ASSERT_EQ(v5->AsConst()->GetAsU64(), CONST_1 >> CONST_2);
+
+    ASSERT_TRUE(v4->GetUsers().empty());
+
+    ASSERT_EQ(v3->GetInput(0), v5);
+    ASSERT_EQ(v3->GetInput(1), v0);
+
+    ASSERT_EQ(v4->GetInput(0), v5);
+    ASSERT_EQ(v4->GetInput(1), v1);
+
+    auto &v5users = v5->GetUsers();
+    ASSERT_EQ(v5users.size(), 2);
+
+    std::array<Instruction *, 2U> expectedUsers = {v3, v4};
+    size_t idx = 0;
+    for (auto *it : v5users) {
+        ASSERT_EQ(it, expectedUsers[idx]);
+        ++idx;
+    }
+}
+
+TEST(ConstantFolding, ASHR_INT32_CONST)
+{
+    Graph graph;
+    Peepholes peepholes(&graph);
+    IrBuilder builder(&graph);
+
+    auto *entryBB = builder.CreateBB();
+    builder.SetBasicBlockScope(entryBB);
+
+    int32_t CONST_1 = -128;
+    int32_t CONST_2 = 2;
+
+    auto *v0 = builder.CreateInt32ConstantInsn(CONST_1);
+    auto *v1 = builder.CreateInt32ConstantInsn(CONST_2);
+    auto *v2 = builder.CreateAshrInsn(DataType::I32, v0, v1);
+    auto *v3 = builder.CreateAddInsn(DataType::I32, v2, v0);
+    auto *v4 = builder.CreateSubInsn(DataType::I32, v2, v1);
+
+    peepholes.Run();
+
+    auto *v5 = v1->GetNext();
+    ASSERT_TRUE(v5->IsConst());
+    ASSERT_EQ(v5->AsConst()->GetAsU64(), CONST_1 >> CONST_2);
+
+    ASSERT_TRUE(v4->GetUsers().empty());
+
+    ASSERT_EQ(v3->GetInput(0), v5);
+    ASSERT_EQ(v3->GetInput(1), v0);
+
+    ASSERT_EQ(v4->GetInput(0), v5);
+    ASSERT_EQ(v4->GetInput(1), v1);
+
+    auto &v5users = v5->GetUsers();
+    ASSERT_EQ(v5users.size(), 2);
+
+    std::array<Instruction *, 2U> expectedUsers = {v3, v4};
+    size_t idx = 0;
+    for (auto *it : v5users) {
+        ASSERT_EQ(it, expectedUsers[idx]);
+        ++idx;
+    }
+}
+
+TEST(ConstantFolding, OR_INT64_CONST)
+{
+    Graph graph;
+    Peepholes peepholes(&graph);
+    IrBuilder builder(&graph);
+
+    auto *entryBB = builder.CreateBB();
+    builder.SetBasicBlockScope(entryBB);
+
+    int64_t CONST_1 = -128;
+    int64_t CONST_2 = 2;
+
+    auto *v0 = builder.CreateInt64ConstantInsn(CONST_1);
+    auto *v1 = builder.CreateInt64ConstantInsn(CONST_2);
+    auto *v2 = builder.CreateOrInsn(DataType::I64, v0, v1);
+    auto *v3 = builder.CreateAddInsn(DataType::I64, v2, v0);
+    auto *v4 = builder.CreateSubInsn(DataType::I64, v2, v1);
+
+    peepholes.Run();
+
+    auto *v5 = v1->GetNext();
+    ASSERT_TRUE(v5->IsConst());
+    ASSERT_EQ(v5->AsConst()->GetAsI64(), CONST_1 | CONST_2);
+
+    ASSERT_TRUE(v4->GetUsers().empty());
+
+    ASSERT_EQ(v3->GetInput(0), v5);
+    ASSERT_EQ(v3->GetInput(1), v0);
+
+    ASSERT_EQ(v4->GetInput(0), v5);
+    ASSERT_EQ(v4->GetInput(1), v1);
+
+    auto &v5users = v5->GetUsers();
+    ASSERT_EQ(v5users.size(), 2);
+
+    std::array<Instruction *, 2U> expectedUsers = {v3, v4};
+    size_t idx = 0;
+    for (auto *it : v5users) {
+        ASSERT_EQ(it, expectedUsers[idx]);
+        ++idx;
+    }
+}
+
+TEST(ConstantFolding, OR_INT32_CONST)
+{
+    Graph graph;
+    Peepholes peepholes(&graph);
+    IrBuilder builder(&graph);
+
+    auto *entryBB = builder.CreateBB();
+    builder.SetBasicBlockScope(entryBB);
+
+    int32_t CONST_1 = -128;
+    int32_t CONST_2 = 2;
+
+    auto *v0 = builder.CreateInt32ConstantInsn(CONST_1);
+    auto *v1 = builder.CreateInt32ConstantInsn(CONST_2);
+    auto *v2 = builder.CreateOrInsn(DataType::I32, v0, v1);
+    auto *v3 = builder.CreateAddInsn(DataType::I32, v2, v0);
+    auto *v4 = builder.CreateSubInsn(DataType::I32, v2, v1);
+
+    peepholes.Run();
+
+    auto *v5 = v1->GetNext();
+    ASSERT_TRUE(v5->IsConst());
+    ASSERT_EQ(v5->AsConst()->GetAsI64(), CONST_1 | CONST_2);
+
+    ASSERT_TRUE(v4->GetUsers().empty());
+
+    ASSERT_EQ(v3->GetInput(0), v5);
+    ASSERT_EQ(v3->GetInput(1), v0);
+
+    ASSERT_EQ(v4->GetInput(0), v5);
+    ASSERT_EQ(v4->GetInput(1), v1);
+
+    auto &v5users = v5->GetUsers();
+    ASSERT_EQ(v5users.size(), 2);
+
+    std::array<Instruction *, 2U> expectedUsers = {v3, v4};
+    size_t idx = 0;
+    for (auto *it : v5users) {
+        ASSERT_EQ(it, expectedUsers[idx]);
+        ++idx;
+    }
+}
+
 }  // namespace compiler::tests

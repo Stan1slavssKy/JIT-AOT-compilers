@@ -51,7 +51,6 @@ public:
         } else {
             UNREACHABLE();
         }
-        assert(resultType == type_);
         SetResultType(resultType);
     }
 

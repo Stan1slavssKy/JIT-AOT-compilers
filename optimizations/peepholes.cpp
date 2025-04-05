@@ -89,6 +89,10 @@ void Peepholes::VisitMul(Instruction *insn)
 
 void Peepholes::VisitAshr(Instruction *insn)
 {
+    if (ConstantFoldingAshr(insn)) {
+        return;
+    }
+
     auto *input0 = insn->GetInput(0);
     auto *input1 = insn->GetInput(1);
 
@@ -146,6 +150,10 @@ void Peepholes::VisitAshr(Instruction *insn)
 
 void Peepholes::VisitOr(Instruction *insn)
 {
+    if (ConstantFoldingOr(insn)) {
+        return;
+    }
+
     if (insn->GetInput(0)->IsConst()) {
         insn->SwapInputs();
     }

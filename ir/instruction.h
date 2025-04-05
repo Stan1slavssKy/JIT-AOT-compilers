@@ -155,6 +155,12 @@ public:
         return resultType_;
     }
 
+    bool IsIntResultType() const
+    {
+        return resultType_ == DataType::I32 || resultType_ == DataType::U32 || resultType_ == DataType::I64 ||
+               resultType_ == DataType::U64;
+    }
+
     void SetId(InstructionId id)
     {
         insnId_ = id;
