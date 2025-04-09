@@ -54,4 +54,65 @@ void BasicBlock::ClearMarkers()
     }
 }
 
+void BasicBlock::PushInstruction(Instruction *insn)
+{
+    if (firstInsn_ == nullptr) {
+        firstInsn_ = insn;
+        lastInsn_ = firstInsn_;
+    } else {
+        lastInsn_->SetNext(insn);
+        insn->SetPrev(lastInsn_);
+        lastInsn_ = insn;
+    }
+}
+
+/// `prevInsn` -- instruction after which `insn` will be inserted
+/// `prevInsn` must be pass as nullpt to insert `insn` in the beginning
+void BasicBlock::InsertInstruction(Instruction *prevInsn, Instruction *insn)
+{
+    if (prevInsn == lastInsn_) {
+        PushInstruction(insn);
+        return;
+    }
+
+    if (prevInsn == nullptr) {
+        firstInsn_->SetPrev(insn);
+        insn->SetNext(firstInsn_);
+        insn->SetPrev(nullptr);
+        firstInsn_ = insn;
+        return;
+    }
+
+    auto *next = prevInsn->GetNext();
+    assert(next != nullptr);
+
+    next->SetPrev(insn);
+    insn->SetNext(next);
+
+    insn->SetPrev(prevInsn);
+    prevInsn->SetNext(insn);
+}
+
+void BasicBlock::Remove(Instruction *insnToRemove)
+{
+    assert(insnToRemove != nullptr);
+
+    if (insnToRemove == firstInsn_) {
+        firstInsn_ = insnToRemove->GetNext();
+        firstInsn_->SetPrev(nullptr);
+    } else if (insnToRemove == lastInsn_) {
+        lastInsn_ = insnToRemove->GetPrev();
+        lastInsn_->SetNext(nullptr);
+    } else {
+        auto *prevInsn = insnToRemove->GetPrev();
+        auto *nextInsn = insnToRemove->GetNext();
+
+        prevInsn->SetNext(nextInsn);
+        nextInsn->SetPrev(prevInsn);
+    }
+
+    insnToRemove->GetInput(0)->RemoveUser(insnToRemove);
+    insnToRemove->GetInput(1)->RemoveUser(insnToRemove);
+}
+
 }  // namespace compiler

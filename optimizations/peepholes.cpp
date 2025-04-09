@@ -11,18 +11,11 @@ void Peepholes::Run()
     tree.Build();
 
     auto &blocks = graph_->GetRpoVector();
-    for (auto *b : blocks) {
-        Instruction *currInsn = b->GetFirstInsn();
-        Instruction *nextInsn = nullptr;
-
-        while (currInsn != nullptr) {
-            nextInsn = currInsn->GetNext();
-
+    for (auto *block : blocks) {
+        block->EnumerateInsns([this](Instruction *currInsn) {
             auto visitMethod = opcodeToVisitTable_[static_cast<size_t>(currInsn->GetOpcode())];
             (this->*visitMethod)(currInsn);
-
-            currInsn = nextInsn;
-        }
+        });
     }
 }
 
