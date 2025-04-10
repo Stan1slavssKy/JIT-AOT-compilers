@@ -28,6 +28,7 @@ set(SOURCES
     analysis/loop_analyzer.cpp
     optimizations/peepholes.cpp
     optimizations/constant_folding.cpp
+    optimizations/inlining.cpp
 )
 
 add_library(compiler_static STATIC ${SOURCES})

@@ -4,11 +4,14 @@
 #include "ir/data_types.h"
 #include "ir/opcodes.h"
 #include "utils/macros.h"
+#include "ir/inputs.h"
 
 #include <array>
+#include <vector>
 #include <list>
 #include <sstream>
-
+#include <memory>
+#include <iostream>
 namespace compiler {
 
 class ConstantInsn;
@@ -21,7 +24,14 @@ public:
     NO_COPY_SEMANTIC(Instruction);
     NO_MOVE_SEMANTIC(Instruction);
 
-    Instruction(Opcode opcode, DataType resultType = DataType::UNDEFINED) : opcode_(opcode), resultType_(resultType) {}
+    Instruction(Opcode opcode, DataType resultType = DataType::UNDEFINED) : opcode_(opcode), resultType_(resultType)
+    {
+        if (IsCall() || IsPhi()) {
+            inputs_ = std::make_unique<VectorInputs>();
+        } else {
+            inputs_ = std::make_unique<DefaultInputs>();
+        }
+    }
 
     virtual ~Instruction() = default;
 
@@ -83,30 +93,14 @@ public:
         }
     }
 
-    void SetInput(Instruction *input, size_t idx)
+    const InputsContainerIface *GetInputs() const
     {
-        assert(input != nullptr);
-        assert(idx < inputs_.size());
-        inputs_[idx] = input;
+        return inputs_.get();
     }
 
-    Instruction *GetInput(size_t idx)
+    InputsContainerIface *GetInputs()
     {
-        assert(idx < inputs_.size());
-        return inputs_[idx];
-    }
-
-    const Instruction *GetInput(size_t idx) const
-    {
-        assert(idx < inputs_.size());
-        return inputs_[idx];
-    }
-
-    void SwapInputs()
-    {
-        auto *temp = inputs_[0];
-        inputs_[0] = inputs_[1];
-        inputs_[1] = temp;
+        return inputs_.get();
     }
 
     bool TryReplaceInput(Instruction *inputToReplace, Instruction *insnToReplaceWith, size_t idx);
@@ -119,6 +113,11 @@ public:
     bool IsPhi() const
     {
         return opcode_ == Opcode::PHI;
+    }
+
+    bool IsCall() const
+    {
+        return opcode_ == Opcode::CALLSTATIC;
     }
 
     bool IsJmp() const
@@ -183,7 +182,7 @@ private:
     Opcode opcode_ {Opcode::UNDEFINED};
     DataType resultType_;
 
-    std::array<Instruction *, 2U> inputs_ {};
+    std::unique_ptr<InputsContainerIface> inputs_;
     std::list<Instruction *> users_;
 };
 

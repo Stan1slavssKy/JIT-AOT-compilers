@@ -50,11 +50,11 @@ TEST(ConstantFolding, MUL_INT_CONST)
 
     ASSERT_TRUE(v4->GetUsers().empty());
 
-    ASSERT_EQ(v3->GetInput(0), v5);
-    ASSERT_EQ(v3->GetInput(1), v0);
+    ASSERT_EQ(v3->GetInputs()->GetInput(0), v5);
+    ASSERT_EQ(v3->GetInputs()->GetInput(1), v0);
 
-    ASSERT_EQ(v4->GetInput(0), v5);
-    ASSERT_EQ(v4->GetInput(1), v1);
+    ASSERT_EQ(v4->GetInputs()->GetInput(0), v5);
+    ASSERT_EQ(v4->GetInputs()->GetInput(1), v1);
 
     auto &v5users = v5->GetUsers();
     ASSERT_EQ(v5users.size(), 2);
@@ -93,11 +93,11 @@ TEST(ConstantFolding, MUL_FLOAT_CONST)
 
     ASSERT_TRUE(v4->GetUsers().empty());
 
-    ASSERT_EQ(v3->GetInput(0), v5);
-    ASSERT_EQ(v3->GetInput(1), v0);
+    ASSERT_EQ(v3->GetInputs()->GetInput(0), v5);
+    ASSERT_EQ(v3->GetInputs()->GetInput(1), v0);
 
-    ASSERT_EQ(v4->GetInput(0), v5);
-    ASSERT_EQ(v4->GetInput(1), v1);
+    ASSERT_EQ(v4->GetInputs()->GetInput(0), v5);
+    ASSERT_EQ(v4->GetInputs()->GetInput(1), v1);
 
     auto &v5users = v5->GetUsers();
     ASSERT_EQ(v5users.size(), 2);
@@ -136,11 +136,11 @@ TEST(ConstantFolding, MUL_DOUBLE_CONST)
 
     ASSERT_TRUE(v4->GetUsers().empty());
 
-    ASSERT_EQ(v3->GetInput(0), v5);
-    ASSERT_EQ(v3->GetInput(1), v0);
+    ASSERT_EQ(v3->GetInputs()->GetInput(0), v5);
+    ASSERT_EQ(v3->GetInputs()->GetInput(1), v0);
 
-    ASSERT_EQ(v4->GetInput(0), v5);
-    ASSERT_EQ(v4->GetInput(1), v1);
+    ASSERT_EQ(v4->GetInputs()->GetInput(0), v5);
+    ASSERT_EQ(v4->GetInputs()->GetInput(1), v1);
 
     auto &v5users = v5->GetUsers();
     ASSERT_EQ(v5users.size(), 2);
@@ -179,11 +179,11 @@ TEST(ConstantFolding, ASHR_INT64_CONST)
 
     ASSERT_TRUE(v4->GetUsers().empty());
 
-    ASSERT_EQ(v3->GetInput(0), v5);
-    ASSERT_EQ(v3->GetInput(1), v0);
+    ASSERT_EQ(v3->GetInputs()->GetInput(0), v5);
+    ASSERT_EQ(v3->GetInputs()->GetInput(1), v0);
 
-    ASSERT_EQ(v4->GetInput(0), v5);
-    ASSERT_EQ(v4->GetInput(1), v1);
+    ASSERT_EQ(v4->GetInputs()->GetInput(0), v5);
+    ASSERT_EQ(v4->GetInputs()->GetInput(1), v1);
 
     auto &v5users = v5->GetUsers();
     ASSERT_EQ(v5users.size(), 2);
@@ -222,11 +222,11 @@ TEST(ConstantFolding, ASHR_INT32_CONST)
 
     ASSERT_TRUE(v4->GetUsers().empty());
 
-    ASSERT_EQ(v3->GetInput(0), v5);
-    ASSERT_EQ(v3->GetInput(1), v0);
+    ASSERT_EQ(v3->GetInputs()->GetInput(0), v5);
+    ASSERT_EQ(v3->GetInputs()->GetInput(1), v0);
 
-    ASSERT_EQ(v4->GetInput(0), v5);
-    ASSERT_EQ(v4->GetInput(1), v1);
+    ASSERT_EQ(v4->GetInputs()->GetInput(0), v5);
+    ASSERT_EQ(v4->GetInputs()->GetInput(1), v1);
 
     auto &v5users = v5->GetUsers();
     ASSERT_EQ(v5users.size(), 2);
@@ -265,11 +265,11 @@ TEST(ConstantFolding, OR_INT64_CONST)
 
     ASSERT_TRUE(v4->GetUsers().empty());
 
-    ASSERT_EQ(v3->GetInput(0), v5);
-    ASSERT_EQ(v3->GetInput(1), v0);
+    ASSERT_EQ(v3->GetInputs()->GetInput(0), v5);
+    ASSERT_EQ(v3->GetInputs()->GetInput(1), v0);
 
-    ASSERT_EQ(v4->GetInput(0), v5);
-    ASSERT_EQ(v4->GetInput(1), v1);
+    ASSERT_EQ(v4->GetInputs()->GetInput(0), v5);
+    ASSERT_EQ(v4->GetInputs()->GetInput(1), v1);
 
     auto &v5users = v5->GetUsers();
     ASSERT_EQ(v5users.size(), 2);
@@ -308,11 +308,11 @@ TEST(ConstantFolding, OR_INT32_CONST)
 
     ASSERT_TRUE(v4->GetUsers().empty());
 
-    ASSERT_EQ(v3->GetInput(0), v5);
-    ASSERT_EQ(v3->GetInput(1), v0);
+    ASSERT_EQ(v3->GetInputs()->GetInput(0), v5);
+    ASSERT_EQ(v3->GetInputs()->GetInput(1), v0);
 
-    ASSERT_EQ(v4->GetInput(0), v5);
-    ASSERT_EQ(v4->GetInput(1), v1);
+    ASSERT_EQ(v4->GetInputs()->GetInput(0), v5);
+    ASSERT_EQ(v4->GetInputs()->GetInput(1), v1);
 
     auto &v5users = v5->GetUsers();
     ASSERT_EQ(v5users.size(), 2);

@@ -22,7 +22,7 @@ public:
     NO_COPY_SEMANTIC(Graph);
     NO_MOVE_SEMANTIC(Graph);
 
-    Graph() = default;
+    Graph();
     ~Graph() = default;
 
     void AddBlock(std::unique_ptr<BasicBlock> block);
@@ -73,6 +73,8 @@ public:
         return newInsn;
     }
 
+    size_t GetMethodId() const;
+
 private:
     // Graph owns all basic blocks and instruction of the current function.
     std::vector<std::unique_ptr<BasicBlock>> basicBlocks_;
@@ -84,6 +86,8 @@ private:
     std::unique_ptr<Loop> rootLoop_;
 
     MarkerManager markerManager_;
+
+    size_t methodId_ {0};
 };
 
 }  // namespace compiler

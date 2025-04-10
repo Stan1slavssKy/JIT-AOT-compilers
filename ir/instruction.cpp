@@ -5,9 +5,8 @@ namespace compiler {
 
 bool Instruction::TryReplaceInput(Instruction *inputToReplace, Instruction *insnToReplaceWith, size_t idx)
 {
-    if (inputs_[idx] == inputToReplace) {
-        inputs_[idx] = insnToReplaceWith;
-        return true;
+    if (inputs_->GetInput(idx) == inputToReplace) {
+        return inputs_->SetInput(insnToReplaceWith, idx);
     }
     return false;
 }

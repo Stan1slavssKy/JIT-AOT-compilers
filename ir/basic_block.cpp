@@ -111,8 +111,8 @@ void BasicBlock::Remove(Instruction *insnToRemove)
         nextInsn->SetPrev(prevInsn);
     }
 
-    insnToRemove->GetInput(0)->RemoveUser(insnToRemove);
-    insnToRemove->GetInput(1)->RemoveUser(insnToRemove);
+    insnToRemove->GetInputs()->GetInput(0)->RemoveUser(insnToRemove);
+    insnToRemove->GetInputs()->GetInput(1)->RemoveUser(insnToRemove);
 }
 
 }  // namespace compiler
