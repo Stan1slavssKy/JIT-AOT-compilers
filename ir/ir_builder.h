@@ -43,8 +43,8 @@ public:
 
     template <typename T>
     Instruction *CreateConstantInsn(T constant, DataType resultType);
-    Instruction *CreateInt32ConstantInsn(uint32_t constant);
-    Instruction *CreateInt64ConstantInsn(uint64_t constant);
+    Instruction *CreateInt32ConstantInsn(int32_t constant);
+    Instruction *CreateInt64ConstantInsn(int64_t constant);
     Instruction *CreateFloat32ConstantInsn(float constant);
     Instruction *CreateFloat64ConstantInsn(double constant);
 
@@ -53,6 +53,12 @@ public:
     Instruction *CreateMulInsn(DataType resultType, Instruction *input1, Instruction *input2);
     Instruction *CreateDivInsn(DataType resultType, Instruction *input1, Instruction *input2);
     Instruction *CreateRemInsn(DataType resultType, Instruction *input1, Instruction *input2);
+
+    Instruction *CreateOrInsn(DataType resultType, Instruction *input1, Instruction *input2);
+    Instruction *CreateXorInsn(DataType resultType, Instruction *input1, Instruction *input2);
+    Instruction *CreateAshrInsn(DataType resultType, Instruction *input1, Instruction *input2);
+    Instruction *CreateShrInsn(DataType resultType, Instruction *input1, Instruction *input2);
+    Instruction *CreateShlInsn(DataType resultType, Instruction *input1, Instruction *input2);
 
     Instruction *CreateJmpInsn(BasicBlock *bbToJmp);
     Instruction *CreateBneInsn(Instruction *input1, Instruction *input2, BasicBlock *bb1, BasicBlock *bb2);

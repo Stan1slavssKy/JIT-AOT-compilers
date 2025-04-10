@@ -25,43 +25,35 @@ public:
     BasicBlock() = default;
     ~BasicBlock() = default;
 
-    void PushInstruction(Instruction *insn)
-    {
-        if (lastInsn_ == nullptr) {
-            firstInsn_ = insn;
-            lastInsn_ = firstInsn_;
-        } else {
-            lastInsn_->SetNext(insn);
-            insn->SetPrev(lastInsn_);
-            lastInsn_ = insn;
-        }
-    }
+    void PushInstruction(Instruction *insn);
 
     /// `prevInsn` -- instruction after which `insn` will be inserted
     /// `prevInsn` must be pass as nullpt to insert `insn` in the beginning
-    void InsertInstruction(Instruction *prevInsn, Instruction *insn)
+    void InsertInstruction(Instruction *prevInsn, Instruction *insn);
+
+    void Remove(Instruction *insnToRemove);
+
+    template <typename Callback>
+    void EnumerateInsns(Callback callback)
     {
-        if (prevInsn == lastInsn_) {
-            PushInstruction(insn);
-            return;
+        Instruction *currInsn = firstInsn_;
+        Instruction *nextInsn = nullptr;
+
+        while (currInsn != nullptr) {
+            nextInsn = currInsn->GetNext();
+            callback(currInsn);
+            currInsn = nextInsn;
         }
+    }
 
-        if (prevInsn == nullptr) {
-            firstInsn_->SetPrev(insn);
-            insn->SetNext(firstInsn_);
-            insn->SetPrev(nullptr);
-            firstInsn_ = insn;
-            return;
-        }
+    Instruction *GetFirstInsn()
+    {
+        return firstInsn_;
+    }
 
-        auto *next = prevInsn->GetNext();
-        assert(next != nullptr);
-
-        next->SetPrev(insn);
-        insn->SetNext(next);
-
-        insn->SetPrev(prevInsn);
-        prevInsn->SetNext(insn);
+    const Instruction *GetFirstInsn() const
+    {
+        return firstInsn_;
     }
 
     void SetId(BasicBlockId id)
