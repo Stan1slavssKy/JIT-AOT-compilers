@@ -178,8 +178,8 @@ public:
     ArithmeticInsn(Opcode opcode, DataType resultType, Instruction *input1, Instruction *input2)
         : Instruction(opcode, resultType)
     {
-        SetInput(input1, 0);
-        SetInput(input2, 1);
+        GetInputs()->SetInput(input1, 0);
+        GetInputs()->SetInput(input2, 1);
         input1->AddUser(this);
         if (input1 == input2) {
             return;
@@ -298,8 +298,8 @@ public:
     BranchInsn(Opcode opcode, Instruction *input1, Instruction *input2, BasicBlock *ifTrueBB, BasicBlock *ifFalseBB)
         : Instruction(opcode, DataType::VOID), ifTrueBB_(ifTrueBB), ifFalseBB_(ifFalseBB)
     {
-        SetInput(input1, 0);
-        SetInput(input2, 1);
+        GetInputs()->SetInput(input1, 0);
+        GetInputs()->SetInput(input2, 1);
         input1->AddUser(this);
         input2->AddUser(this);
     }
@@ -349,7 +349,7 @@ class RetInsn final : public Instruction {
 public:
     RetInsn(DataType retType, Instruction *input) : Instruction(Opcode::RET, retType), retValue_(input)
     {
-        SetInput(input, 0);
+        GetInputs()->SetInput(input, 0);
         input->AddUser(this);
     }
 
@@ -357,6 +357,48 @@ public:
 
 private:
     Instruction *retValue_ {nullptr};
+};
+
+// Foo():
+// Entry:
+//     0.u64 Constant 1
+//     1.u64 Constant 22
+//     2.u64 CallStatic Bar v0, v1
+//     3.u64 ret v2
+
+// Bar(u64 param1, u64 param2)
+// Entry:
+//     0.Parameter 0
+//     1.Parameter 1
+//     2.u64 Add v0, v1
+//     3.u64 ret v2
+class CallStaticInsn final : public Instruction {
+public:
+    CallStaticInsn(DataType retType, size_t methodId, std::initializer_list<std::pair<Instruction *, DataType>> inputs)
+        : Instruction(Opcode::CALLSTATIC, retType), arguments_(std::move(inputs)), methodId_(methodId)
+    {
+        for (auto &argPair : arguments_) {
+            auto *input = argPair.first;
+            GetInputs()->AppendInput(input);
+            input->AddUser(this);
+        }
+    }
+
+    const std::initializer_list<std::pair<Instruction *, DataType>> &GetArgument() const
+    {
+        return arguments_;
+    }
+
+    size_t GetMethodId() const
+    {
+        return methodId_;
+    }
+
+    void Dump(std::stringstream &ss) const override;
+
+private:
+    std::initializer_list<std::pair<Instruction *, DataType>> arguments_;
+    size_t methodId_ {0};
 };
 
 }  // namespace compiler

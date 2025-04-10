@@ -25,12 +25,12 @@ void Peepholes::VisitMul(Instruction *insn)
         return;
     }
 
-    if (insn->GetInput(0)->IsConst()) {
-        insn->SwapInputs();
+    if (insn->GetInputs()->GetInput(0)->IsConst()) {
+        insn->GetInputs()->SwapInputs();
     }
 
-    auto *input0 = insn->GetInput(0);
-    auto *input1 = insn->GetInput(1);
+    auto *input0 = insn->GetInputs()->GetInput(0);
+    auto *input1 = insn->GetInputs()->GetInput(1);
 
     if (input1->IsConst()) {
         auto *constInput1 = input1->AsConst();
@@ -50,12 +50,12 @@ void Peepholes::VisitMul(Instruction *insn)
                 auto *user = *userIt;
                 bool needRemoveUser = false;
 
-                if (user->GetInput(0) == insn) {
-                    user->SetInput(input0, 0);
+                if (user->GetInputs()->GetInput(0) == insn) {
+                    user->GetInputs()->SetInput(input0, 0);
                     needRemoveUser = true;
                 }
-                if (user->GetInput(1) == insn) {
-                    user->SetInput(input0, 1);
+                if (user->GetInputs()->GetInput(1) == insn) {
+                    user->GetInputs()->SetInput(input0, 1);
                     needRemoveUser = true;
                 }
                 if (needRemoveUser) {
@@ -86,8 +86,8 @@ void Peepholes::VisitAshr(Instruction *insn)
         return;
     }
 
-    auto *input0 = insn->GetInput(0);
-    auto *input1 = insn->GetInput(1);
+    auto *input0 = insn->GetInputs()->GetInput(0);
+    auto *input1 = insn->GetInputs()->GetInput(1);
 
     if (input1->IsConst()) {
         auto *input1AsConst = input1->AsConst();
@@ -116,9 +116,9 @@ void Peepholes::VisitAshr(Instruction *insn)
         // 3. ashr v2, v0   <-- this insn will be deleted by dead code elimination if it has no more users
         // 5.u64 Constant zzz (xxx + yyy = v0 + v1)
         // 4. ashr v2, v5
-        if (input0->GetOpcode() == Opcode::ASHR && input0->GetInput(1)->IsConst()) {
-            auto *input0FromPrevInsn = input0->GetInput(0);
-            auto *input1FromPrevInsnAsConst = input0->GetInput(1)->AsConst();
+        if (input0->GetOpcode() == Opcode::ASHR && input0->GetInputs()->GetInput(1)->IsConst()) {
+            auto *input0FromPrevInsn = input0->GetInputs()->GetInput(0);
+            auto *input1FromPrevInsnAsConst = input0->GetInputs()->GetInput(1)->AsConst();
 
             if (input1FromPrevInsnAsConst->GetType() == input1AsConst->GetType()) {
                 auto newConstType = input1AsConst->GetType();
@@ -133,8 +133,8 @@ void Peepholes::VisitAshr(Instruction *insn)
                 input0FromPrevInsn->AddUser(insn);
                 newConstInsn->AddUser(insn);
 
-                insn->SetInput(input0FromPrevInsn, 0);
-                insn->SetInput(newConstInsn, 1);
+                insn->GetInputs()->SetInput(input0FromPrevInsn, 0);
+                insn->GetInputs()->SetInput(newConstInsn, 1);
                 return;
             }
         }
@@ -147,12 +147,12 @@ void Peepholes::VisitOr(Instruction *insn)
         return;
     }
 
-    if (insn->GetInput(0)->IsConst()) {
-        insn->SwapInputs();
+    if (insn->GetInputs()->GetInput(0)->IsConst()) {
+        insn->GetInputs()->SwapInputs();
     }
 
-    auto *input0 = insn->GetInput(0);
-    auto *input1 = insn->GetInput(1);
+    auto *input0 = insn->GetInputs()->GetInput(0);
+    auto *input1 = insn->GetInputs()->GetInput(1);
 
     if (input1->IsConst()) {
         auto *input1AsConst = input1->AsConst();
@@ -197,5 +197,6 @@ void Peepholes::VisitRet([[maybe_unused]] Instruction *insn) {}
 void Peepholes::VisitPhi([[maybe_unused]] Instruction *insn) {}
 void Peepholes::VisitParameter([[maybe_unused]] Instruction *insn) {}
 void Peepholes::VisitConstant([[maybe_unused]] Instruction *insn) {}
+void Peepholes::VisitCallStatic([[maybe_unused]] Instruction *insn) {}
 
 }  // namespace compiler
