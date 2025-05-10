@@ -1,23 +1,51 @@
 #include "ir/instruction.h"
 #include "ir/instructions.h"
+#include "utils/macros.h"
 
 namespace compiler {
 
 bool Instruction::TryReplaceInput(Instruction *inputToReplace, Instruction *insnToReplaceWith, size_t idx)
 {
-    if (inputs_[idx] == inputToReplace) {
-        inputs_[idx] = insnToReplaceWith;
-        return true;
+    if (inputs_->GetInput(idx) == inputToReplace) {
+        return inputs_->SetInput(insnToReplaceWith, idx);
     }
     return false;
 }
 
 bool Instruction::ReplaceInputs(Instruction *inputToReplace, Instruction *insnToReplaceWith)
 {
+    assert(opcode_ != Opcode::PHI);
+
     bool succ0 = TryReplaceInput(inputToReplace, insnToReplaceWith, 0);
     bool succ1 = TryReplaceInput(inputToReplace, insnToReplaceWith, 1);
 
     return succ0 || succ1;
+}
+
+bool Instruction::ReplaceInputsPhi(Instruction *inputToReplace, Instruction *insnToReplaceWith)
+{
+    assert(opcode_ == Opcode::PHI);
+
+    bool inputsReplaced = false;
+    auto *phiInsn = static_cast<PhiInsn *>(this);
+
+    auto &inputs = inputs_->AsVectorInputs()->GetInputs();
+    for (auto it = inputs.begin(); it != inputs.end(); ++it) {
+        if (*it == inputToReplace) {
+            *it = insnToReplaceWith;
+            inputsReplaced = true;
+        }
+    }
+
+    if (inputsReplaced) {
+        bool depsReplaced = phiInsn->ReplaceDependency(inputToReplace, insnToReplaceWith);
+        if (UNLIKELY(!depsReplaced)) {
+            std::cerr << "ReplaceInputsPhi: failed to replaced dependency." << std::endl;
+            UNREACHABLE();
+        }
+    }
+
+    return inputsReplaced;
 }
 
 /// For all users of this insn change inputs from this insn to given.
@@ -26,7 +54,11 @@ void Instruction::ReplaceInputsForUsers(Instruction *insnToReplaceWith)
     for (auto userIt = users_.begin(); userIt != users_.end();) {
         // Need to save iterator, because of removing user from list below.
         auto currUser = *(userIt++);
-        if (currUser->ReplaceInputs(this, insnToReplaceWith)) {
+
+        bool isReplaced = (currUser->opcode_ == Opcode::PHI) ? currUser->ReplaceInputsPhi(this, insnToReplaceWith)
+                                                             : currUser->ReplaceInputs(this, insnToReplaceWith);
+
+        if (isReplaced) {
             // Now we successfully replace input for current user,
             // it means that `this` insn do not have this user, so we need to remove it.
             this->RemoveUser(currUser);

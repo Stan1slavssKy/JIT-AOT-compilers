@@ -38,9 +38,9 @@ inline Instruction *IrBuilder::CreateInstruction(ArgsT &&...args)
     return insnPtr;
 }
 
-inline Instruction *IrBuilder::CreatePhiInsn(DataType resultType)
+inline PhiInsn *IrBuilder::CreatePhiInsn(DataType resultType)
 {
-    return CreateInstruction<PhiInsn>(resultType);
+    return static_cast<PhiInsn *>(CreateInstruction<PhiInsn>(resultType));
 }
 
 inline Instruction *IrBuilder::CreateParameterInsn(uint32_t parameter)

@@ -59,11 +59,11 @@ TEST(IR_BUILDER, LoopFactorial)
     auto *v8 = builder.CreateAddInsn(DataType::U32, v5, v1);
     builder.CreateJmpInsn(bb1);
 
-    v4->SetInput(v1, 0);
-    v4->SetInput(v7, 1);
+    v4->ResolveDependency(v1, entryBB);
+    v4->ResolveDependency(v7, bb2);
 
-    v5->SetInput(v2, 0);
-    v5->SetInput(v8, 1);
+    v5->ResolveDependency(v2, entryBB);
+    v5->ResolveDependency(v8, bb2);
 
     builder.SetBasicBlockScope(bb3);
     builder.CreateRetInsn(DataType::U64, v4);

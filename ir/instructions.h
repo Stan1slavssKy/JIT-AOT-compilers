@@ -2,10 +2,12 @@
 #define IR_INSTRUCTIONS_H
 
 #include "ir/data_types.h"
+#include "ir/inputs.h"
 #include "ir/instruction.h"
 #include "utils/bit_utils.h"
 
 #include <cmath>
+#include <unordered_map>
 
 namespace compiler {
 
@@ -154,23 +156,63 @@ private:
 
 class PhiInsn final : public Instruction {
 public:
+    using ValueToBBMap = std::unordered_map<Instruction *, std::list<BasicBlock *>>;
+
     PhiInsn(DataType resultType) : Instruction(Opcode::PHI, resultType) {}
 
-    BasicBlock *GetPhiInputBB(size_t idx)
+    ValueToBBMap &GetDependenciesMap()
     {
-        // TODO
-        (void)idx;
-        return nullptr;
+        return dependencies_;
     }
 
-    Instruction *GetPhiInput(BasicBlock *bb)
+    const ValueToBBMap &GetDependenciesMap() const
     {
-        // TODO
-        (void)bb;
-        return nullptr;
+        return dependencies_;
+    }
+
+    void ResolveDependency(Instruction *value, BasicBlock *bb)
+    {
+        auto it = dependencies_.find(value);
+        if (it == dependencies_.end()) {
+            GetInputs()->AppendInput(value);
+            value->AddUser(this);
+        }
+        dependencies_[value].push_back(bb);
+    }
+
+    bool ReplaceDependency(Instruction *oldValue, Instruction *newValue)
+    {
+        auto node = dependencies_.extract(oldValue);
+        if (node.empty()) {
+            return false;
+        }
+
+        auto nodeWithNewValue = dependencies_.find(newValue);
+        if (nodeWithNewValue == dependencies_.end()) {
+            node.key() = newValue;
+            dependencies_.insert(std::move(node));
+        } else {
+            auto &oldValueBBVec = node.mapped();
+            dependencies_[newValue].merge(std::move(oldValueBBVec));
+        }
+
+        return true;
+    }
+
+    VectorInputs *GetInputs()
+    {
+        return static_cast<VectorInputs *>(Instruction::GetInputs());
+    }
+
+    const VectorInputs *GetInputs() const
+    {
+        return static_cast<const VectorInputs *>(Instruction::GetInputs());
     }
 
     void Dump(std::stringstream &ss) const override;
+
+private:
+    ValueToBBMap dependencies_;
 };
 
 class ArithmeticInsn : public Instruction {
@@ -178,8 +220,8 @@ public:
     ArithmeticInsn(Opcode opcode, DataType resultType, Instruction *input1, Instruction *input2)
         : Instruction(opcode, resultType)
     {
-        SetInput(input1, 0);
-        SetInput(input2, 1);
+        GetInputs()->SetInput(input1, 0);
+        GetInputs()->SetInput(input2, 1);
         input1->AddUser(this);
         if (input1 == input2) {
             return;
@@ -298,9 +340,12 @@ public:
     BranchInsn(Opcode opcode, Instruction *input1, Instruction *input2, BasicBlock *ifTrueBB, BasicBlock *ifFalseBB)
         : Instruction(opcode, DataType::VOID), ifTrueBB_(ifTrueBB), ifFalseBB_(ifFalseBB)
     {
-        SetInput(input1, 0);
-        SetInput(input2, 1);
+        GetInputs()->SetInput(input1, 0);
+        GetInputs()->SetInput(input2, 1);
         input1->AddUser(this);
+        if (input1 == input2) {
+            return;
+        }
         input2->AddUser(this);
     }
 
@@ -349,7 +394,7 @@ class RetInsn final : public Instruction {
 public:
     RetInsn(DataType retType, Instruction *input) : Instruction(Opcode::RET, retType), retValue_(input)
     {
-        SetInput(input, 0);
+        GetInputs()->SetInput(input, 0);
         input->AddUser(this);
     }
 
@@ -357,6 +402,35 @@ public:
 
 private:
     Instruction *retValue_ {nullptr};
+};
+
+class CallStaticInsn final : public Instruction {
+public:
+    CallStaticInsn(DataType retType, size_t methodId, std::initializer_list<std::pair<Instruction *, DataType>> inputs)
+        : Instruction(Opcode::CALLSTATIC, retType), arguments_(std::move(inputs)), methodId_(methodId)
+    {
+        for (auto &argPair : arguments_) {
+            auto *input = argPair.first;
+            GetInputs()->AppendInput(input);
+            input->AddUser(this);
+        }
+    }
+
+    const std::initializer_list<std::pair<Instruction *, DataType>> &GetArgument() const
+    {
+        return arguments_;
+    }
+
+    size_t GetMethodId() const
+    {
+        return methodId_;
+    }
+
+    void Dump(std::stringstream &ss) const override;
+
+private:
+    std::initializer_list<std::pair<Instruction *, DataType>> arguments_;
+    size_t methodId_ {0};
 };
 
 }  // namespace compiler

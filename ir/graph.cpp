@@ -5,6 +5,17 @@
 
 namespace compiler {
 
+Graph::Graph()
+{
+    static size_t newGraphCounter = 0;
+    methodId_ = newGraphCounter++;
+}
+
+size_t Graph::GetMethodId() const
+{
+    return methodId_;
+}
+
 void Graph::AddBlock(std::unique_ptr<BasicBlock> block)
 {
     size_t currblockNum = basicBlocks_.size();

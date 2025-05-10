@@ -36,16 +36,28 @@ void ConstantInsn::Dump(std::stringstream &ss) const
 void PhiInsn::Dump(std::stringstream &ss) const
 {
     Instruction::Dump(ss);
-    ss << "v" << GetInput(0)->GetId() << ":BB_" << GetInput(0)->GetParentBB()->GetId();
-    ss << ", ";
-    ss << "v" << GetInput(1)->GetId() << ":BB_" << GetInput(1)->GetParentBB()->GetId();
+
+    for (auto dependencyIt = dependencies_.cbegin(); dependencyIt != dependencies_.cend(); ++dependencyIt) {
+        auto &[inst, bbs] = *dependencyIt;
+
+        for (auto bbIt = bbs.cbegin(); bbIt != bbs.cend(); ++bbIt) {
+            ss << 'v' << inst->GetId() << ":BB_" << (*bbIt)->GetId();
+            if (std::next(bbIt) != bbs.cend()) {
+                ss << ", ";
+            }
+        }
+
+        if (dependencies_.cend() != std::next(dependencyIt)) {
+            ss << ", ";
+        }
+    }
 }
 
 void ArithmeticInsn::Dump(std::stringstream &ss) const
 {
     Instruction::Dump(ss);
-    ss << "v" << GetInput(0)->GetId() << ", "
-       << "v" << GetInput(1)->GetId();
+    ss << "v" << GetInputs()->GetInput(0)->GetId() << ", "
+       << "v" << GetInputs()->GetInput(1)->GetId();
 }
 
 void JmpInsn::Dump(std::stringstream &ss) const
@@ -57,8 +69,8 @@ void JmpInsn::Dump(std::stringstream &ss) const
 void BranchInsn::Dump(std::stringstream &ss) const
 {
     Instruction::Dump(ss);
-    ss << "v" << GetInput(0)->GetId() << ", "
-       << "v" << GetInput(1)->GetId() << ", ";
+    ss << "v" << GetInputs()->GetInput(0)->GetId() << ", "
+       << "v" << GetInputs()->GetInput(1)->GetId() << ", ";
     ss << "BB_" << GetTrueBranchBB()->GetId() << ", BB_" << GetFalseBranchBB()->GetId();
 }
 

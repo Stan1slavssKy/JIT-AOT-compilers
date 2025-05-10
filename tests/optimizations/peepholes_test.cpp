@@ -45,15 +45,15 @@ TEST(Peepholes, IDENTICAL_MUL_CONSTANT_ON_RIGHT_SIDE)
     peepholes.Run();
 
     // Ensure that inputs did not change
-    ASSERT_EQ(v3->GetInput(0), v2);
-    ASSERT_EQ(v3->GetInput(1), v0);
+    ASSERT_EQ(v3->GetInputs()->GetInput(0), v2);
+    ASSERT_EQ(v3->GetInputs()->GetInput(1), v0);
 
     // Check that there are no users
     ASSERT_TRUE(v3->GetUsers().empty());
 
     // Ensure that add have no mul result as input
-    ASSERT_EQ(v4->GetInput(0), v2);
-    ASSERT_EQ(v4->GetInput(1), v0);
+    ASSERT_EQ(v4->GetInputs()->GetInput(0), v2);
+    ASSERT_EQ(v4->GetInputs()->GetInput(1), v0);
 }
 
 TEST(Peepholes, IDENTICAL_MUL_CONSTANT_ON_LEFT_SIDE)
@@ -88,15 +88,15 @@ TEST(Peepholes, IDENTICAL_MUL_CONSTANT_ON_LEFT_SIDE)
     peepholes.Run();
 
     // Ensure that inputs CHANGED
-    ASSERT_EQ(v3->GetInput(0), v2);
-    ASSERT_EQ(v3->GetInput(1), v0);
+    ASSERT_EQ(v3->GetInputs()->GetInput(0), v2);
+    ASSERT_EQ(v3->GetInputs()->GetInput(1), v0);
 
     // Check that there are no users
     ASSERT_TRUE(v3->GetUsers().empty());
 
     // Ensure that add have no mul result as input
-    ASSERT_EQ(v4->GetInput(0), v2);
-    ASSERT_EQ(v4->GetInput(1), v0);
+    ASSERT_EQ(v4->GetInputs()->GetInput(0), v2);
+    ASSERT_EQ(v4->GetInputs()->GetInput(1), v0);
 }
 
 TEST(Peepholes, IDENTICAL_MUL_WITH_MANY_USERS)
@@ -138,21 +138,21 @@ TEST(Peepholes, IDENTICAL_MUL_WITH_MANY_USERS)
     peepholes.Run();
 
     // Ensure that inputs CHANGED
-    ASSERT_EQ(v3->GetInput(0), v2);
-    ASSERT_EQ(v3->GetInput(1), v0);
+    ASSERT_EQ(v3->GetInputs()->GetInput(0), v2);
+    ASSERT_EQ(v3->GetInputs()->GetInput(1), v0);
 
     // Check that there are no users
     ASSERT_TRUE(v3->GetUsers().empty());
 
     // Ensure that add have no mul result as input
-    ASSERT_EQ(v4->GetInput(0), v2);
-    ASSERT_EQ(v4->GetInput(1), v0);
+    ASSERT_EQ(v4->GetInputs()->GetInput(0), v2);
+    ASSERT_EQ(v4->GetInputs()->GetInput(1), v0);
 
-    ASSERT_EQ(v5->GetInput(0), v2);
-    ASSERT_EQ(v5->GetInput(1), v2);
+    ASSERT_EQ(v5->GetInputs()->GetInput(0), v2);
+    ASSERT_EQ(v5->GetInputs()->GetInput(1), v2);
 
-    ASSERT_EQ(v6->GetInput(0), v1);
-    ASSERT_EQ(v6->GetInput(1), v2);
+    ASSERT_EQ(v6->GetInputs()->GetInput(0), v1);
+    ASSERT_EQ(v6->GetInputs()->GetInput(1), v2);
 }
 
 TEST(Peepholes, MUL_BY_TWO)
@@ -191,15 +191,15 @@ TEST(Peepholes, MUL_BY_TWO)
     auto *v5 = entryBB->GetLastInsn()->GetPrev();
 
     ASSERT_TRUE(v5->GetOpcode() == Opcode::ADD);
-    ASSERT_EQ(v5->GetInput(0), v2);
-    ASSERT_EQ(v5->GetInput(1), v2);
+    ASSERT_EQ(v5->GetInputs()->GetInput(0), v2);
+    ASSERT_EQ(v5->GetInputs()->GetInput(1), v2);
 
     auto v5users = v5->GetUsers();
     ASSERT_EQ(v5users.size(), 1);
     ASSERT_EQ(v5users.front(), v4);
 
-    ASSERT_EQ(v4->GetInput(0), v5);
-    ASSERT_EQ(v4->GetInput(1), v0);
+    ASSERT_EQ(v4->GetInputs()->GetInput(0), v5);
+    ASSERT_EQ(v4->GetInputs()->GetInput(1), v0);
 }
 
 TEST(Peepholes, MUL_BY_TWO_MANY_USERS)
@@ -244,8 +244,8 @@ TEST(Peepholes, MUL_BY_TWO_MANY_USERS)
     auto *v7 = entryBB->GetLastInsn()->GetPrev()->GetPrev()->GetPrev();
 
     ASSERT_TRUE(v7->GetOpcode() == Opcode::ADD);
-    ASSERT_EQ(v7->GetInput(0), v2);
-    ASSERT_EQ(v7->GetInput(1), v2);
+    ASSERT_EQ(v7->GetInputs()->GetInput(0), v2);
+    ASSERT_EQ(v7->GetInputs()->GetInput(1), v2);
 
     auto v7users = v7->GetUsers();
     ASSERT_EQ(v7users.size(), 3);
@@ -257,14 +257,14 @@ TEST(Peepholes, MUL_BY_TWO_MANY_USERS)
         ++idx;
     }
 
-    ASSERT_EQ(v4->GetInput(0), v7);
-    ASSERT_EQ(v4->GetInput(1), v0);
+    ASSERT_EQ(v4->GetInputs()->GetInput(0), v7);
+    ASSERT_EQ(v4->GetInputs()->GetInput(1), v0);
 
-    ASSERT_EQ(v5->GetInput(0), v7);
-    ASSERT_EQ(v5->GetInput(1), v7);
+    ASSERT_EQ(v5->GetInputs()->GetInput(0), v7);
+    ASSERT_EQ(v5->GetInputs()->GetInput(1), v7);
 
-    ASSERT_EQ(v6->GetInput(0), v7);
-    ASSERT_EQ(v6->GetInput(1), v1);
+    ASSERT_EQ(v6->GetInputs()->GetInput(0), v7);
+    ASSERT_EQ(v6->GetInputs()->GetInput(1), v1);
 }
 
 TEST(Peepholes, ASHR_WITH_ZERO)
@@ -303,14 +303,14 @@ TEST(Peepholes, ASHR_WITH_ZERO)
 
     peepholes.Run();
 
-    ASSERT_EQ(v4->GetInput(0), v2);
-    ASSERT_EQ(v4->GetInput(1), v1);
+    ASSERT_EQ(v4->GetInputs()->GetInput(0), v2);
+    ASSERT_EQ(v4->GetInputs()->GetInput(1), v1);
 
-    ASSERT_EQ(v5->GetInput(0), v4);
-    ASSERT_EQ(v5->GetInput(1), v2);
+    ASSERT_EQ(v5->GetInputs()->GetInput(0), v4);
+    ASSERT_EQ(v5->GetInputs()->GetInput(1), v2);
 
-    ASSERT_EQ(v6->GetInput(0), v5);
-    ASSERT_EQ(v6->GetInput(1), v2);
+    ASSERT_EQ(v6->GetInputs()->GetInput(0), v5);
+    ASSERT_EQ(v6->GetInputs()->GetInput(1), v2);
 
     ASSERT_EQ(v3->GetUsers().size(), 0);
 
@@ -324,14 +324,14 @@ TEST(Peepholes, ASHR_WITH_ZERO)
         ++idx;
     }
 
-    ASSERT_EQ(v4->GetInput(0), v2);
-    ASSERT_EQ(v4->GetInput(1), v1);
+    ASSERT_EQ(v4->GetInputs()->GetInput(0), v2);
+    ASSERT_EQ(v4->GetInputs()->GetInput(1), v1);
 
-    ASSERT_EQ(v5->GetInput(0), v4);
-    ASSERT_EQ(v5->GetInput(1), v2);
+    ASSERT_EQ(v5->GetInputs()->GetInput(0), v4);
+    ASSERT_EQ(v5->GetInputs()->GetInput(1), v2);
 
-    ASSERT_EQ(v6->GetInput(0), v5);
-    ASSERT_EQ(v6->GetInput(1), v2);
+    ASSERT_EQ(v6->GetInputs()->GetInput(0), v5);
+    ASSERT_EQ(v6->GetInputs()->GetInput(1), v2);
 }
 
 TEST(Peepholes, SEVERAL_ASHR_WITH_CONST)
@@ -372,8 +372,8 @@ TEST(Peepholes, SEVERAL_ASHR_WITH_CONST)
 
     auto *v6 = entryBB->GetLastInsn();
 
-    ASSERT_EQ(v5->GetInput(0), v3);
-    ASSERT_EQ(v5->GetInput(1), v6);
+    ASSERT_EQ(v5->GetInputs()->GetInput(0), v3);
+    ASSERT_EQ(v5->GetInputs()->GetInput(1), v6);
 
     ASSERT_EQ(v6->GetUsers().size(), 1);
     ASSERT_EQ(v6->GetUsers().front(), v5);
@@ -422,8 +422,8 @@ TEST(Peepholes, OR_WITH_ZERO)
 
     peepholes.Run();
 
-    ASSERT_EQ(v4->GetInput(0), v2);
-    ASSERT_EQ(v4->GetInput(1), v1);
+    ASSERT_EQ(v4->GetInputs()->GetInput(0), v2);
+    ASSERT_EQ(v4->GetInputs()->GetInput(1), v1);
 
     ASSERT_TRUE(v3->GetUsers().empty());
 
@@ -431,43 +431,89 @@ TEST(Peepholes, OR_WITH_ZERO)
     ASSERT_EQ(v2->GetUsers().front(), v4);
 }
 
-TEST(Peepholes, OR_WITH_IDENTICAL_INPUTS)
+TEST(Peepholes, MUL_BY_TWO_WITH_PHI_USER)
 {
     Graph graph;
     Peepholes peepholes(&graph);
     IrBuilder builder(&graph);
 
     /*
-        entryBB:
-            // 0.i64 Constant 0
-            // 1.i64 Constant 42
-            // 2.i64 add v0, v1
-            // 3.i64 or v2, v2
-            // 4.i64 sub v3, v1
-            ==>
-            // 0.i64 Constant 0
-            // 1.i64 Constant 42
-            // 2.i64 add v0, v1
-            // 4.i64 sub v2, v1
+        BB_0:
+            0.u32 Parameter 0
+            1.u64 Constant 2
+            2. jmp BB_3
+        BB_1:
+            3.u64 mul v0, v1 // mul by two peephole
+            4. jmp BB_4
+        BB_2:
+            5.u64 Constant 3
+            6.u64 mul v0, v5
+            7. jmp BB_4
+        BB_3:
+            8.u64 Constant 100
+            9. bgt v0, v8, BB_1, BB_2
+        BB_4
+            10p.u64 Phi v3:BB_1, v6:BB_2
+            11.u64 ret v10
     */
-    auto *entryBB = builder.CreateBB();
-    builder.SetBasicBlockScope(entryBB);
+    auto *bb0 = builder.CreateBB();
+    auto *bb1 = builder.CreateBB();
+    auto *bb2 = builder.CreateBB();
+    auto *bb3 = builder.CreateBB();
+    auto *bb4 = builder.CreateBB();
 
-    auto *v0 = builder.CreateInt64ConstantInsn(0);
-    auto *v1 = builder.CreateInt64ConstantInsn(42);
-    auto *v2 = builder.CreateAddInsn(DataType::I64, v0, v1);
-    auto *v3 = builder.CreateOrInsn(DataType::I64, v2, v2);
-    auto *v4 = builder.CreateSubInsn(DataType::I64, v3, v1);
+    builder.SetBasicBlockScope(bb0);
+    auto *v0 = builder.CreateParameterInsn(0);
+    auto *v1 = builder.CreateInt64ConstantInsn(2);
+    [[maybe_unused]] auto *v2 = builder.CreateJmpInsn(bb3);
+
+    builder.SetBasicBlockScope(bb1);
+    auto *v3 = builder.CreateMulInsn(DataType::U64, v0, v1);
+    [[maybe_unused]] auto *v4 = builder.CreateJmpInsn(bb4);
+
+    builder.SetBasicBlockScope(bb2);
+    auto *v5 = builder.CreateInt64ConstantInsn(3);
+    auto *v6 = builder.CreateMulInsn(DataType::U64, v0, v5);
+    [[maybe_unused]] auto *v7 = builder.CreateJmpInsn(bb4);
+
+    builder.SetBasicBlockScope(bb3);
+    auto *v8 = builder.CreateInt64ConstantInsn(100);
+    [[maybe_unused]] auto *v9 = builder.CreateBgtInsn(v0, v8, bb1, bb2);
+
+    builder.SetBasicBlockScope(bb4);
+    auto *v10 = builder.CreatePhiInsn(DataType::U64);
+    [[maybe_unused]] auto *v11 = builder.CreateRetInsn(DataType::U64, v10);
+
+    v10->ResolveDependency(v3, bb1);
+    v10->ResolveDependency(v6, bb2);
 
     peepholes.Run();
 
-    ASSERT_EQ(v4->GetInput(0), v2);
-    ASSERT_EQ(v4->GetInput(1), v1);
+    // mul x * 2 replaced by add x + x
+    auto *v12 = bb1->GetFirstInsn();
+    ASSERT_EQ(v12->GetOpcode(), Opcode::ADD);
+    ASSERT_EQ(v12->GetInputs()->GetInput(0), v0);
+    ASSERT_EQ(v12->GetInputs()->GetInput(1), v0);
 
-    ASSERT_TRUE(v3->GetUsers().empty());
+    auto &v12users = v12->GetUsers();
+    ASSERT_EQ(v12users.size(), 1);
+    ASSERT_EQ(v12users.back(), v10);
 
-    ASSERT_EQ(v2->GetUsers().size(), 1);
-    ASSERT_EQ(v2->GetUsers().front(), v4);
+    auto &phiInputs = v10->GetInputs()->GetInputs();
+    std::array<Instruction *, 2U> expectedPhiInputs = {v12, v6};
+
+    auto findInExpectedArr = [&expectedPhiInputs](Instruction *it) {
+        for (auto *expectedIt : expectedPhiInputs) {
+            if (it == expectedIt) {
+                return true;
+            }
+        }
+        return false;
+    };
+
+    for (auto *it : phiInputs) {
+        ASSERT_TRUE(findInExpectedArr(it));
+    }
 }
 
 }  // namespace compiler::tests

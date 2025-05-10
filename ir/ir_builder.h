@@ -37,7 +37,7 @@ public:
     template <typename InsnT, typename... ArgsT>
     Instruction *CreateInstruction(ArgsT &&...args);
 
-    Instruction *CreatePhiInsn(DataType resultType);
+    PhiInsn *CreatePhiInsn(DataType resultType);
 
     Instruction *CreateParameterInsn(uint32_t parameter);
 
