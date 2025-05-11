@@ -22,13 +22,15 @@ set(SOURCES
     ir/basic_block.cpp
     ir/dump_instructions.cpp
     ir/instruction.cpp
+    ir/inputs.cpp
     analysis/rpo.cpp
     analysis/dfs.cpp
     analysis/dominator_tree.cpp
     analysis/loop_analyzer.cpp
-    optimizations/peepholes.cpp
+    optimizations/check_elimination.cpp
     optimizations/constant_folding.cpp
     optimizations/inlining.cpp
+    optimizations/peepholes.cpp
 )
 
 add_library(compiler_static STATIC ${SOURCES})

@@ -39,7 +39,7 @@ public:
 
     PhiInsn *CreatePhiInsn(DataType resultType);
 
-    Instruction *CreateParameterInsn(uint32_t parameter);
+    Instruction *CreateParameterInsn(uint32_t parameter, DataType argType);
 
     template <typename T>
     Instruction *CreateConstantInsn(T constant, DataType resultType);
@@ -66,6 +66,12 @@ public:
     Instruction *CreateBgtInsn(Instruction *input1, Instruction *input2, BasicBlock *bb1, BasicBlock *bb2);
 
     Instruction *CreateRetInsn(DataType retType, Instruction *input);
+
+    Instruction *CreateNullcheckInsn(Instruction *input);
+
+    Instruction *CreateLoadArrayInsn(DataType arrType, Instruction *arrayRef, Instruction *idx);
+    Instruction *CreateStoreArrayInsn(DataType arrType, Instruction *arrayRef, Instruction *idx,
+                                      Instruction *storeValue);
 
 private:
     Graph *graph_ {nullptr};

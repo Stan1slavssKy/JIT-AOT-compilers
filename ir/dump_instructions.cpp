@@ -1,3 +1,4 @@
+#include <sstream>
 #include "ir/instructions.h"
 #include "ir/helpers.h"
 #include "ir/instruction.h"
@@ -77,7 +78,37 @@ void BranchInsn::Dump(std::stringstream &ss) const
 void RetInsn::Dump(std::stringstream &ss) const
 {
     Instruction::Dump(ss);
-    ss << "v" << retValue_->GetId();
+
+    auto input = GetInputs()->GetInput(0);
+    if (input != nullptr) {
+        ss << "v" << input->GetId();
+    }
+}
+
+void NullCheckInsn::Dump(std::stringstream &ss) const
+{
+    Instruction::Dump(ss);
+    ss << "v" << objectValueToCheck_->GetId();
+}
+
+void StoreArrayInsn::Dump(std::stringstream &ss) const
+{
+    Instruction::Dump(ss);
+    auto &inputs = GetInputs()->AsVectorInputs()->GetInputs();
+    for (auto it = inputs.cbegin(); it < inputs.cend(); ++it) {
+        ss << "v" << (*it)->GetId();
+
+        if (std::next(it) != inputs.cend()) {
+            ss << ", ";
+        }
+    }
+}
+
+void LoadArrayInsn::Dump(std::stringstream &ss) const
+{
+    Instruction::Dump(ss);
+    ss << "v" << GetInputs()->GetInput(0)->GetId() << ", "
+       << "v" << GetInputs()->GetInput(1)->GetId();
 }
 
 }  // namespace compiler

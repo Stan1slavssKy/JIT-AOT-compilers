@@ -5,14 +5,6 @@
 
 namespace compiler::tests {
 
-// For debug purposes.
-[[maybe_unused]] static void DumpGraph(Graph &graph)
-{
-    std::stringstream ss;
-    graph.Dump(ss);
-    std::cout << ss.str() << std::endl;
-}
-
 TEST(Peepholes, IDENTICAL_MUL_CONSTANT_ON_RIGHT_SIDE)
 {
     Graph graph;

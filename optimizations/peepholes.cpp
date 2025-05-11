@@ -15,6 +15,8 @@ void Peepholes::Run()
         block->EnumerateInsns([this](Instruction *currInsn) {
             auto visitMethod = opcodeToVisitTable_[static_cast<size_t>(currInsn->GetOpcode())];
             (this->*visitMethod)(currInsn);
+
+            return false;
         });
     }
 }
@@ -198,5 +200,10 @@ void Peepholes::VisitPhi([[maybe_unused]] Instruction *insn) {}
 void Peepholes::VisitParameter([[maybe_unused]] Instruction *insn) {}
 void Peepholes::VisitConstant([[maybe_unused]] Instruction *insn) {}
 void Peepholes::VisitCallStatic([[maybe_unused]] Instruction *insn) {}
+void Peepholes::VisitNullCheck([[maybe_unused]] Instruction *insn) {}
+void Peepholes::VisitBoundsCheck([[maybe_unused]] Instruction *insn) {}
+void Peepholes::VisitNewArr([[maybe_unused]] Instruction *insn) {}
+void Peepholes::VisitLoadArray([[maybe_unused]] Instruction *insn) {}
+void Peepholes::VisitStoreArray([[maybe_unused]] Instruction *insn) {}
 
 }  // namespace compiler

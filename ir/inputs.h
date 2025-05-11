@@ -32,6 +32,7 @@ public:
 
     virtual Instruction *GetInput(size_t idx) = 0;
     virtual const Instruction *GetInput(size_t idx) const = 0;
+    virtual void RemoveUsers(Instruction *insnToRemove) = 0;
 
     virtual bool SwapInputs()
     {
@@ -95,6 +96,8 @@ public:
         return true;
     }
 
+    void RemoveUsers(Instruction *insnToRemove) override;
+
     DefaultInputs *AsDefaultInputs() override
     {
         return static_cast<DefaultInputs *>(this);
@@ -132,6 +135,8 @@ public:
     {
         return inputs_[idx];
     }
+
+    void RemoveUsers(Instruction *insnToRemove) override;
 
     VectorInputs *AsVectorInputs() override
     {

@@ -1,5 +1,6 @@
 #include "ir/instruction.h"
 #include "ir/instructions.h"
+#include "ir/basic_block.h"
 #include "utils/macros.h"
 
 namespace compiler {
@@ -22,12 +23,9 @@ bool Instruction::ReplaceInputs(Instruction *inputToReplace, Instruction *insnTo
     return succ0 || succ1;
 }
 
-bool Instruction::ReplaceInputsPhi(Instruction *inputToReplace, Instruction *insnToReplaceWith)
+bool Instruction::ReplaceVectorInputs(Instruction *inputToReplace, Instruction *insnToReplaceWith)
 {
-    assert(opcode_ == Opcode::PHI);
-
     bool inputsReplaced = false;
-    auto *phiInsn = static_cast<PhiInsn *>(this);
 
     auto &inputs = inputs_->AsVectorInputs()->GetInputs();
     for (auto it = inputs.begin(); it != inputs.end(); ++it) {
@@ -37,7 +35,8 @@ bool Instruction::ReplaceInputsPhi(Instruction *inputToReplace, Instruction *ins
         }
     }
 
-    if (inputsReplaced) {
+    if (IsPhi() && inputsReplaced) {
+        auto *phiInsn = static_cast<PhiInsn *>(this);
         bool depsReplaced = phiInsn->ReplaceDependency(inputToReplace, insnToReplaceWith);
         if (UNLIKELY(!depsReplaced)) {
             std::cerr << "ReplaceInputsPhi: failed to replaced dependency." << std::endl;
@@ -55,8 +54,8 @@ void Instruction::ReplaceInputsForUsers(Instruction *insnToReplaceWith)
         // Need to save iterator, because of removing user from list below.
         auto currUser = *(userIt++);
 
-        bool isReplaced = (currUser->opcode_ == Opcode::PHI) ? currUser->ReplaceInputsPhi(this, insnToReplaceWith)
-                                                             : currUser->ReplaceInputs(this, insnToReplaceWith);
+        bool isReplaced = currUser->HasVectorInputs() ? currUser->ReplaceVectorInputs(this, insnToReplaceWith)
+                                                      : currUser->ReplaceInputs(this, insnToReplaceWith);
 
         if (isReplaced) {
             // Now we successfully replace input for current user,
@@ -78,6 +77,33 @@ const ConstantInsn *Instruction::AsConst() const
 {
     assert(opcode_ == Opcode::CONSTANT);
     return static_cast<const ConstantInsn *>(this);
+}
+
+bool Instruction::DominatedOver(Instruction *insn)
+{
+    if (insn == nullptr) {
+        return true;
+    }
+
+    if (parentBB_ != insn->GetParentBB()) {
+        return parentBB_->IsDominatesOver(insn->GetParentBB());
+    }
+
+    bool result = false;
+
+    parentBB_->EnumerateInsns([&result, &insn, this](Instruction *currInsn) {
+        if (currInsn == insn) {
+            result = false;
+            return true;
+        } else if (currInsn == this) {
+            result = true;
+            return true;
+        }
+
+        return false;
+    });
+
+    return result;
 }
 
 }  // namespace compiler

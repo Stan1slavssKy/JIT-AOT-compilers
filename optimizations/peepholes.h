@@ -26,7 +26,7 @@ private:
     using VisitMethodType = void (compiler::Peepholes::*)(Instruction *insn);
 
 #define OPCODE_MACROS(_, instrType) &Peepholes::Visit##instrType,
-    std::array<VisitMethodType, 23U> opcodeToVisitTable_ {
+    std::array<VisitMethodType, 26U> opcodeToVisitTable_ {
 #include "ir/instruction_type.def"
     };
 #undef OPCODE_MACROS
