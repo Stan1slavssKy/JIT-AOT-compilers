@@ -41,7 +41,9 @@ public:
 
         while (currInsn != nullptr) {
             nextInsn = currInsn->GetNext();
-            callback(currInsn);
+            if (callback(currInsn)) {
+                return;
+            }
             currInsn = nextInsn;
         }
     }

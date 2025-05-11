@@ -18,17 +18,26 @@ public:
 
 class ParameterInsn final : public Instruction {
 public:
-    ParameterInsn(uint32_t argNum) : Instruction(Opcode::PARAMETER, DataType::U32), argNum_(argNum) {}
+    ParameterInsn(uint32_t argNum, DataType paramType = DataType::UNDEFINED)
+        : Instruction(Opcode::PARAMETER, DataType::U32), argNum_(argNum), paramType_(paramType)
+    {
+    }
 
     uint32_t GetArgNum() const
     {
         return argNum_;
     }
 
+    bool IsRefParam() const
+    {
+        return paramType_ == DataType::REF;
+    }
+
     void Dump(std::stringstream &ss) const override;
 
 private:
     uint32_t argNum_ {0};
+    DataType paramType_ {DataType::UNDEFINED};
 };
 
 // Available types: integer types, float32, float64.
@@ -392,8 +401,13 @@ public:
 
 class RetInsn final : public Instruction {
 public:
+    RetInsn() : Instruction(Opcode::RET, DataType::VOID) {}
+
     RetInsn(DataType retType, Instruction *input) : Instruction(Opcode::RET, retType), retValue_(input)
     {
+        assert(retType != DataType::VOID);
+        assert(input != nullptr);
+
         GetInputs()->SetInput(input, 0);
         input->AddUser(this);
     }
@@ -431,6 +445,144 @@ public:
 private:
     std::initializer_list<std::pair<Instruction *, DataType>> arguments_;
     size_t methodId_ {0};
+};
+
+class NullCheckInsn final : public Instruction {
+public:
+    NullCheckInsn(Instruction *insn) : Instruction(Opcode::NULLCHECK, DataType::REF), objectValueToCheck_(insn)
+    {
+        GetInputs()->SetInput(insn, 0);
+        insn->AddUser(this);
+    }
+
+    Instruction *GetInsnToCheck()
+    {
+        return objectValueToCheck_;
+    }
+
+    const Instruction *GetInsnToCheck() const
+    {
+        return objectValueToCheck_;
+    }
+
+    void Dump(std::stringstream &ss) const override;
+
+private:
+    Instruction *objectValueToCheck_ {nullptr};
+};
+
+class BoundsCheckInsn final : public Instruction {
+public:
+    BoundsCheckInsn(Instruction *insn, Instruction *idxToCheck, Instruction *maxArrIdx)
+        : Instruction(Opcode::BOUNDSCHECK, DataType::U32),
+          objectValueToCheck_(insn),
+          idxToCheck_(idxToCheck),
+          maxArrIdx_(maxArrIdx)
+    {
+        GetInputs()->AppendInput(insn);
+        GetInputs()->AppendInput(idxToCheck);
+        GetInputs()->AppendInput(maxArrIdx);
+
+        assert(insn != idxToCheck);
+        assert(idxToCheck != maxArrIdx);
+        insn->AddUser(this);
+        idxToCheck->AddUser(this);
+        maxArrIdx->AddUser(this);
+    }
+
+    Instruction *GetInsnToCheck()
+    {
+        return objectValueToCheck_;
+    }
+
+    const Instruction *GetInsnToCheck() const
+    {
+        return objectValueToCheck_;
+    }
+
+    Instruction *GetMaxArrayIdx()
+    {
+        return maxArrIdx_;
+    }
+
+    const Instruction *GetMaxArrayIdx() const
+    {
+        return maxArrIdx_;
+    }
+
+    Instruction *GetIdxToCheck()
+    {
+        return maxArrIdx_;
+    }
+
+    const Instruction *GetIdxToCheck() const
+    {
+        return maxArrIdx_;
+    }
+
+    void Dump(std::stringstream &ss) const override;
+
+private:
+    Instruction *objectValueToCheck_ {nullptr};
+
+    Instruction *idxToCheck_ {nullptr};
+    Instruction *maxArrIdx_ {nullptr};
+};
+
+class NewArrInsn final : public Instruction {
+public:
+    NewArrInsn(DataType elemtype, size_t length)
+        : Instruction(Opcode::NEWARR, DataType::REF), elemtype_(elemtype), length_(length)
+    {
+    }
+
+private:
+    DataType elemtype_;
+    size_t length_ {0};
+};
+
+class LoadArrayInsn final : public Instruction {
+public:
+    LoadArrayInsn(DataType elemType, Instruction *arrayRef, Instruction *idx)
+        : Instruction(Opcode::LOADARRAY, elemType), arrayRef_(arrayRef), loadIdx_(idx)
+    {
+        GetInputs()->SetInput(arrayRef, 0);
+        GetInputs()->SetInput(idx, 1);
+
+        assert(arrayRef != idx);
+        arrayRef->AddUser(this);
+        idx->AddUser(this);
+    }
+
+    void Dump(std::stringstream &ss) const override;
+
+private:
+    Instruction *arrayRef_ {nullptr};
+    Instruction *loadIdx_ {nullptr};
+};
+
+class StoreArrayInsn final : public Instruction {
+public:
+    StoreArrayInsn(DataType elemType, Instruction *arrayRef, Instruction *idx, Instruction *value)
+        : Instruction(Opcode::STOREARRAY, elemType), arrayRef_(arrayRef), storeIdx_(idx), storeValue_(value)
+    {
+        GetInputs()->AppendInput(arrayRef);
+        GetInputs()->AppendInput(idx);
+        GetInputs()->AppendInput(value);
+
+        assert(arrayRef != idx);
+        assert(idx != value);
+        arrayRef->AddUser(this);
+        idx->AddUser(this);
+        value->AddUser(this);
+    }
+
+    void Dump(std::stringstream &ss) const override;
+
+private:
+    Instruction *arrayRef_ {nullptr};
+    Instruction *storeIdx_ {nullptr};
+    Instruction *storeValue_ {nullptr};
 };
 
 }  // namespace compiler

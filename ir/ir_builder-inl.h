@@ -1,6 +1,8 @@
 #ifndef IR_IR_BUILDER_INL_H
 #define IR_IR_BUILDER_INL_H
 
+#include "ir/instruction.h"
+#include "ir/instructions.h"
 #include "ir/ir_builder.h"
 
 namespace compiler {
@@ -43,9 +45,9 @@ inline PhiInsn *IrBuilder::CreatePhiInsn(DataType resultType)
     return static_cast<PhiInsn *>(CreateInstruction<PhiInsn>(resultType));
 }
 
-inline Instruction *IrBuilder::CreateParameterInsn(uint32_t parameter)
+inline Instruction *IrBuilder::CreateParameterInsn(uint32_t parameter, DataType argType = DataType::UNDEFINED)
 {
-    return CreateInstruction<ParameterInsn>(parameter);
+    return CreateInstruction<ParameterInsn>(parameter, argType);
 }
 
 template <typename T>
@@ -144,9 +146,34 @@ inline Instruction *IrBuilder::CreateBgtInsn(Instruction *input1, Instruction *i
     return CreateInstruction<BgtInsn>(input1, input2, bb1, bb2);
 }
 
-inline Instruction *IrBuilder::CreateRetInsn(DataType retType, Instruction *input)
+inline Instruction *IrBuilder::CreateRetInsn(DataType retType, Instruction *input = nullptr)
 {
+    if (retType == DataType::VOID && input == nullptr) {
+        return CreateInstruction<RetInsn>();
+    }
     return CreateInstruction<RetInsn>(retType, input);
+}
+
+inline Instruction *IrBuilder::CreateNullcheckInsn(Instruction *input)
+{
+    return CreateInstruction<NullCheckInsn>(input);
+}
+
+inline Instruction *IrBuilder::CreateBoundsCheckInsn(Instruction *input, Instruction *idxToCheck,
+                                                     Instruction *maxArrIdx)
+{
+    return CreateInstruction<BoundsCheckInsn>(input, idxToCheck, maxArrIdx);
+}
+
+inline Instruction *IrBuilder::CreateLoadArrayInsn(DataType arrType, Instruction *arrayRef, Instruction *idx)
+{
+    return CreateInstruction<LoadArrayInsn>(arrType, arrayRef, idx);
+}
+
+inline Instruction *IrBuilder::CreateStoreArrayInsn(DataType arrType, Instruction *arrayRef, Instruction *idx,
+                                                    Instruction *storeValue)
+{
+    return CreateInstruction<StoreArrayInsn>(arrType, arrayRef, idx, storeValue);
 }
 
 }  // namespace compiler

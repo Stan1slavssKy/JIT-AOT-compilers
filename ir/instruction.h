@@ -27,7 +27,7 @@ public:
 
     Instruction(Opcode opcode, DataType resultType = DataType::UNDEFINED) : opcode_(opcode), resultType_(resultType)
     {
-        if (IsCall() || IsPhi()) {
+        if (HasVectorInputs()) {
             inputs_ = std::make_unique<VectorInputs>();
         } else {
             inputs_ = std::make_unique<DefaultInputs>();
@@ -108,7 +108,7 @@ public:
 
     bool ReplaceInputs(Instruction *inputToReplace, Instruction *insnToReplaceWith);
 
-    bool ReplaceInputsPhi(Instruction *inputToReplace, Instruction *insnToReplaceWith);
+    bool ReplaceVectorInputs(Instruction *inputToReplace, Instruction *insnToReplaceWith);
 
     /// For all users of this insn change inputs from this insn to given.
     void ReplaceInputsForUsers(Instruction *insnToReplaceWith);
@@ -137,6 +137,23 @@ public:
     {
         return opcode_ == Opcode::CONSTANT;
     }
+
+    bool IsStoreArray() const
+    {
+        return opcode_ == Opcode::STOREARRAY;
+    }
+
+    bool IsBoundCheck() const
+    {
+        return opcode_ == Opcode::BOUNDSCHECK;
+    }
+
+    bool HasVectorInputs() const
+    {
+        return IsPhi() || IsCall() || IsStoreArray() || IsBoundCheck();
+    }
+
+    bool DoesProduceReference() const;
 
     ConstantInsn *AsConst();
 
@@ -172,6 +189,8 @@ public:
     {
         return insnId_;
     }
+
+    bool DominatedOver(Instruction *insn);
 
     virtual void Dump(std::stringstream &ss) const;
 

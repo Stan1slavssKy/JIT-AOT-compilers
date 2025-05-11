@@ -5,14 +5,6 @@
 
 namespace compiler::tests {
 
-// For debug purposes.
-[[maybe_unused]] static void DumpGraph(Graph &graph)
-{
-    std::stringstream ss;
-    graph.Dump(ss);
-    std::cout << ss.str() << std::endl;
-}
-
 TEST(ConstantFolding, MUL_INT_CONST)
 {
     Graph graph;
