@@ -26,9 +26,6 @@ public:
     }
 
 private:
-    void DFSImpl(std::vector<BasicBlock *> &dfsVector, BasicBlock *block);
-
-private:
     Graph *graph_ {nullptr};
 
     Marker marker_;

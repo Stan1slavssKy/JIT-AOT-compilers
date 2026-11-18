@@ -75,6 +75,8 @@ public:
 
     size_t GetMethodId() const;
 
+    std::size_t GetBBCount() const;
+
 private:
     // Graph owns all basic blocks and instruction of the current function.
     std::vector<std::unique_ptr<BasicBlock>> basicBlocks_;
