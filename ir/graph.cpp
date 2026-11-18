@@ -103,4 +103,9 @@ Loop *Graph::CreateNewLoop(BasicBlock *header)
     return loopPtr;
 }
 
+std::size_t Graph::GetBBCount() const
+{
+    return basicBlocks_.size();
+}
+
 }  // namespace compiler
