@@ -1,6 +1,6 @@
 #include "ir/graph.h"
-#include "analysis/rpo.h"
 #include "analysis/dominator_tree.h"
+#include "analysis/dfs.h"
 #include "ir/instructions.h"
 
 namespace compiler {
@@ -49,10 +49,10 @@ size_t Graph::GetAliveBlockCount() const
 
 void Graph::RunRpo()
 {
-    RPO rpo(this);
+    DFS dfs(this);
     auto marker = CreateNewMarker();
-    rpo.SetMarker(marker);
-    rpoVector_ = rpo.Run();
+    dfs.SetMarker(marker);
+    rpoVector_ = dfs.RunRPO();
 
     EraseMarker(marker);
 }
