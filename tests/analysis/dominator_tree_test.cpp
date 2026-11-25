@@ -2,6 +2,7 @@
 
 #include "analysis/dominator_tree.h"
 #include "ir/ir_builder.h"
+#include "tests/test_helper.h"
 
 namespace compiler::tests {
 

@@ -27,7 +27,7 @@ void DominatorTree::Build()
         dfs.SetMarker(marker);
         block->SetMarker(marker);  // mark block to remove it from DFS bypass.
 
-        auto reachableBlocks = dfs.Run();
+        auto reachableBlocks = dfs.RunPreorder();
 
         CalculateDominatedBlocks(block, rpoVec, reachableBlocks);
 

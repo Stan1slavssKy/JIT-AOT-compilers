@@ -18,15 +18,19 @@ public:
 
     DFS(Graph *graph) : graph_(graph) {}
 
-    std::vector<BasicBlock *> Run();
+    std::vector<BasicBlock *> RunPreorder();
+    std::vector<BasicBlock *> RunRPO();
+
+    struct DfsOrders {
+        std::vector<BasicBlock *> preorder;
+        std::vector<BasicBlock *> rpo;
+    };
+    DfsOrders Run();
 
     void SetMarker(Marker marker)
     {
         marker_ = marker;
     }
-
-private:
-    void DFSImpl(std::vector<BasicBlock *> &dfsVector, BasicBlock *block);
 
 private:
     Graph *graph_ {nullptr};
